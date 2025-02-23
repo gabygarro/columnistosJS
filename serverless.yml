@@ -1,0 +1,25 @@
+service: columnistosjs
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+package:
+  excludeDevDependencies: true
+
+plugins:
+  - serverless-webpack
+  - serverless-dotenv-plugin
+
+functions:
+  post:
+    handler: post.handler
+    timeout: 30
+    events:
+      - schedule: cron(30 8 * * ? *)
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.cjs

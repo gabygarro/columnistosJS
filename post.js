@@ -1,8 +1,11 @@
 import 'dotenv/config';
 import wafrn from './wafrn/index.js';
 
-const main = async () => {
-  wafrn();
+export async function handler(event) {
+  return wafrn();
 };
 
-main();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  console.log("Running locally...");
+  handler();
+}
