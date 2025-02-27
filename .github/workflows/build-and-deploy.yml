@@ -1,0 +1,45 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: main
+  workflow_dispatch:
+
+concurrency:
+  group: "build-and-deploy"
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "20.18.2"
+  AWS_REGION: us-east-1
+  AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
+  WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: aws sts get-caller-identity
+      - run: npm i
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3.39.0
+      - name: Build
+        run: npm run build
+      - run: sls deploy --stage production -r ${{ env.AWS_REGION }} --verbose

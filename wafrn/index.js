@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { login } from './login';
+import { login } from './login.js';
 
 const wafrn = async () => {
   try {

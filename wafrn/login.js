@@ -1,4 +1,4 @@
-import { WAFRN_EMAIL, WAFRN_PASSWORD, WAFRN_URL } from './constants';
+import { WAFRN_EMAIL, WAFRN_PASSWORD, WAFRN_URL } from './constants.js';
 
 export const login = async () => {
   try {
