@@ -18,7 +18,10 @@ functions:
     handler: post.handler
     timeout: 30
     events:
-      - schedule: cron(30 8 * * ? *)
+      - schedule: cron(22 4 * * ? *)
+    environment:
+      WAFRN_EMAIL: ${env:WAFRN_EMAIL}
+      WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
 
 custom:
   webpack:

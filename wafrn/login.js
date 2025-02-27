@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { WAFRN_EMAIL, WAFRN_PASSWORD, WAFRN_URL } from './constants.js';
 
 export const login = async () => {
@@ -10,8 +11,8 @@ export const login = async () => {
     const { data: { success, token, errorMessage }} = await axios.post(
       `${WAFRN_URL}/api/login`,
       {
-        email,
-        password,
+        email: WAFRN_EMAIL,
+        password: WAFRN_PASSWORD,
       }
     );
     if (success !== true) {

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { login } from './login.js';
+import { WAFRN_URL } from './constants.js'
 
 const wafrn = async () => {
   try {
@@ -7,7 +8,7 @@ const wafrn = async () => {
     const response = await axios.post(
       `${WAFRN_URL}/api/v3/createPost`,
       {
-        content: "este woot fue enviado desde aws lambda",
+        content: "este woot fue enviado desde aws lambda pero ahora es deployed desde GitHub Actions",
         content_warning: "",
         medias: [],
         privacy: 0,
