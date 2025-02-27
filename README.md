@@ -70,25 +70,25 @@ IAMFullAccess
 CloudWatchLogsFullAccess
 ```
 
-  También es necesario agregar la siguiente política inline
+También es necesario agregar la siguiente política inline
 
 ```
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Sid": "Statement1",
-			"Effect": "Allow",
-			"Action": [
-				"events:DescribeRule",
-				"events:PutRule",
-				"events:PutTargets"
-			],
-			"Resource": [
-				"*"
-			]
-		}
-	]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Statement1",
+      "Effect": "Allow",
+      "Action": [
+        "events:DescribeRule",
+        "events:PutRule",
+        "events:PutTargets"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
 }
 ```
 
