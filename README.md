@@ -6,7 +6,17 @@ Soy capaz de publicar _woots_ a [Wafrn](https://app.wafrn.net/blog/columnistoscr
 
 Puedo correr localmente con Docker y uso Serverless para correr en AWS.
 
-## Configurar un proyecto nuevo
+## Desarrollo local
+
+Crea una cuenta en [Wafrn](https://app.wafrn.net). Crea el archivo `.env` usando como base `.env.example`.
+y completa las variables de ambiente.
+
+```bash
+npm i
+npm run start
+```
+
+## Configurar un proyecto nuevo en la nube
 
 ### Deployment local a la nube
 
