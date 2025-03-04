@@ -18,10 +18,16 @@ functions:
     handler: post.handler
     timeout: 30
     events:
-      - schedule: cron(22 4 * * ? *)
+      - schedule: cron(57 17 * * ? *)
     environment:
       WAFRN_EMAIL: ${env:WAFRN_EMAIL}
       WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
+    vpc:
+      securityGroupIds:
+        - ${env:AWS_LAMBDA_SG}
+      subnetIds:
+        - ${env:AWS_SUBNET_ID_1}
+        - ${env:AWS_SUBNET_ID_2}
 
 custom:
   webpack:

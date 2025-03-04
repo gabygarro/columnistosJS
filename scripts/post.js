@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import wafrn from './wafrn/index.js';
+import wafrn from '../wafrn/index.js';
 
-export async function handler(event) {
+export async function handler() {
   return wafrn();
 };
 
