@@ -18,12 +18,7 @@ functions:
     handler: scripts/post.handler
     timeout: 30
     events:
-      # - schedule: cron(08 18 * * ? *)
-      # Run once for testing
-      - http:
-          path: run-once
-          method: post
-          private: true
+      - schedule: cron(36 18 * * ? *)
     environment:
       WAFRN_EMAIL: ${env:WAFRN_EMAIL}
       WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
