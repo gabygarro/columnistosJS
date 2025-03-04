@@ -5,7 +5,8 @@
   "main": "scripts/post.js",
   "type": "module",
   "scripts": {
-    "start": "node scripts/post.js",
+    "scripts:post": "node scripts/post.js",
+    "scripts:crawl": "node scripts/crawl.js",
     "build": "webpack",
     "local-deploy": "npm run build && NODE_ENV=development sls deploy --stage development -r us-east-1 --aws-profile mfa --verbose"
   },

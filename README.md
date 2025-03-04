@@ -163,3 +163,25 @@ También es necesario agregar la siguiente política inline
 3. Usando un programa como TablePlus, conéctate a la base de datos por su nombre para correr [el script de setup](#base-de-datos-local).
 
 </details>
+
+### Configurar variables en el repositorio
+
+<details>
+<summary>Leer instrucciones</summary>
+
+Configurar las siguientes variables de ambiente en GitHub
+
+- AWS_LAMBDA_SG
+- AWS_RDS_SG
+- AWS_SUBNET_ID_1
+- AWS_SUBNET_ID_2
+- AWS_SUBNET_ID_3
+- AWS_SUBNET_ID_4
+- DB_HOST
+- DB_USER
+
+Configurar el siguiente secreto en GitHub
+
+- DB_PWD
+
+</details>
