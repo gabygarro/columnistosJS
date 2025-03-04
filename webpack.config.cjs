@@ -3,10 +3,13 @@ const path = require('path');
 module.exports = {
   target: 'node',
   mode: 'production',
-  entry: './scripts/post.js',
+  entry: {
+    post: './scripts/post.js',
+    crawl: './scripts/crawl.js',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'scripts/post.js',
+    filename: 'scripts/[name].js',
     libraryTarget: 'commonjs2',
   },
 };
