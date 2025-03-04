@@ -20,6 +20,8 @@ env:
   AWS_LAMBDA_SG: ${{ vars.AWS_LAMBDA_SG }}
   AWS_SUBNET_ID_1: ${{ vars.AWS_SUBNET_ID_1 }}
   AWS_SUBNET_ID_2: ${{ vars.AWS_SUBNET_ID_2 }}
+  WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
+  WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
 
 permissions:
   id-token: write
