@@ -15,12 +15,26 @@ y completa las variables de ambiente.
 
 ```bash
 npm i
-npm run start
+docker-compose up -d # Runs database
 ```
 
-## Configurar un proyecto nuevo en la nube
+### Base de datos local
+
+Usa un programa como TablePlus para conectarse a la base de datos local para correr la configuración
+
+```sql
+CREATE DATABASE columnistos;
+CREATE USER IF NOT EXISTS '<<DB_USER>>' IDENTIFIED BY '<<DB_PWD>>';
+GRANT ALL PRIVILEGES ON columnistos.* TO '<<DB_USER>>';
+FLUSH PRIVILEGES;
+```
+
+## Configurar un proyecto nuevo en AWS
 
 ### Deployment local a la nube
+
+<details>
+<summary>Leer instrucciones</summary>
 
 ```bash
 npm i -g serverless@3.40.0
@@ -32,7 +46,12 @@ En AWS, en el menú superior derecho elige "Security credentials". Crea un nuevo
 serverless config credentials --provider aws --key XXXX --secret XXXX
 ```
 
-#### Instrucciones con MFA
+</details>
+
+### Instrucciones con MFA
+
+<details>
+<summary>Leer instrucciones</summary>
 
 Si tienes MFA habilitado, guarda de la misma página Security credentials el identificador de tu dispositivo MFA que tiene el patrón `arn:aws:iam:xxx`.
 
@@ -58,7 +77,12 @@ export AWS_PROFILE="mfa" # talvez no es completamente necesario
 npm run local-deploy
 ```
 
+</details>
+
 ### Deployment desde GitHub Actions
+
+<details>
+<summary>Leer instrucciones</summary>
 
 Cuando ocurre un commit en `main`, un [GitHub Workflow](.github/workflows/build-and-deploy.yml) actualiza el deployment en AWS. Para que Github sea capaz de hacer cambios en AWS, hay que darle un rol en nuestra cuenta de AWS.
 
@@ -107,3 +131,12 @@ También es necesario agregar la siguiente política inline
 3. Copia el ARN del rol a la variable de ambiente de GitHub `AWS_ROLE_TO_ASSUME`.
 
 4. Configura los secretos de ambiente de GitHub `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`.
+
+</details>
+
+### Crear VPC
+
+<details>
+<summary>Leer instrucciones</summary>
+1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, subnet privada y pública, una internet gateway, un route table adicional para la subnet pública y un NAT Gateway para el route table default.
+</details
