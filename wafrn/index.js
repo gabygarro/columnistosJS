@@ -21,6 +21,8 @@ const wafrn = async () => {
       }
     );
     console.log(response);
+    const ipResponse = await axios.get('https://api.ipify.org?format=json');
+    console.log(ipResponse.data);
   } catch (error) {
     console.log(error);
   }
