@@ -18,7 +18,7 @@ functions:
     handler: post.handler
     timeout: 30
     events:
-      - schedule: cron(01 18 * * ? *)
+      - schedule: cron(04 18 * * ? *)
     environment:
       WAFRN_EMAIL: ${env:WAFRN_EMAIL}
       WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
