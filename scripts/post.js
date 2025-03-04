@@ -8,4 +8,4 @@ export async function handler() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log("Running locally...");
   handler();
-}
+};
