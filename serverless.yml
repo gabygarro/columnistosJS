@@ -38,7 +38,7 @@ functions:
     handler: scripts/crawl.handler
     timeout: 30
     events:
-      - schedule: cron(05 * * * ? *)
+      - schedule: cron(25 * * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
@@ -46,4 +46,4 @@ functions:
 
 custom:
   webpack:
-    webpackConfig: ./post.webpack.config.cjs
+    webpackConfig: ./webpack.config.cjs

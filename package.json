@@ -7,8 +7,7 @@
   "scripts": {
     "scripts:post": "node scripts/post.js",
     "scripts:crawl": "node scripts/crawl.js",
-    "build:post": "webpack --config post.webpack.config.cjs",
-    "build:crawl": "webpack --config crawl.webpack.config.cjs",
+    "build": "webpack",
     "local-deploy": "npm run build && NODE_ENV=development sls deploy --stage development -r us-east-1 --aws-profile mfa --verbose"
   },
   "dependencies": {
