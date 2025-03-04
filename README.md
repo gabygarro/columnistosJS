@@ -185,3 +185,10 @@ Configurar el siguiente secreto en GitHub
 - DB_PWD
 
 </details>
+
+## Configurar security groups
+
+El security group de rds solamente debe de tener dos inbound rules
+
+- MySQL/Aurora del IP del local
+- MySQL/Aurora del security group del lambda
