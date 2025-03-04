@@ -53,5 +53,5 @@ jobs:
       - name: Install Serverless Framework
         run: npm install -g serverless@3.39.0
       - name: Build
-        run: npm run build
+        run: npm run build:post && npm run build:crawl
       - run: sls deploy --stage production -r ${{ env.AWS_REGION }} --verbose
