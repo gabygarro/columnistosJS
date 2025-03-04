@@ -2,10 +2,10 @@
   "name": "columnistosjs",
   "version": "1.0.0",
   "description": "Una versión para el bot columnistos escrita en NodeJS.",
-  "main": "post.js",
+  "main": "scripts/post.js",
   "type": "module",
   "scripts": {
-    "start": "node post.js",
+    "start": "node scripts/post.js",
     "build": "webpack",
     "local-deploy": "npm run build && NODE_ENV=development sls deploy --stage development -r us-east-1 --aws-profile mfa --verbose"
   },
