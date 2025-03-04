@@ -46,4 +46,4 @@ functions:
 
 custom:
   webpack:
-    webpackConfig: ./webpack.config.cjs
+    webpackConfig: ./post.webpack.config.cjs
