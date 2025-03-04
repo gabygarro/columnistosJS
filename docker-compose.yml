@@ -1,7 +1,7 @@
 services:
   db:
     image: mariadb:latest
-    container_name: mariadb
+    container_name: columnistos-mariadb
     environment:
       MYSQL_DATABASE: columnistos
       MYSQL_USER: ${DB_USER}

@@ -18,8 +18,11 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_LAMBDA_SG: ${{ vars.AWS_LAMBDA_SG }}
+  AWS_RDS_SG: ${{ vars.AWS_RDS_SG }}
   AWS_SUBNET_ID_1: ${{ vars.AWS_SUBNET_ID_1 }}
   AWS_SUBNET_ID_2: ${{ vars.AWS_SUBNET_ID_2 }}
+  AWS_SUBNET_ID_3: ${{ vars.AWS_SUBNET_ID_3 }}
+  AWS_SUBNET_ID_4: ${{ vars.AWS_SUBNET_ID_4 }}
   WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
   WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
 

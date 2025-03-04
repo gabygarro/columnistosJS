@@ -1,1 +1,41 @@
 USE columnistos;
+
+CREATE TABLE author
+(
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(128) NOT NULL,
+  gender ENUM('M', 'F', 'NB', 'X'), -- NB: Non-binary, X: Ignore author
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE site
+(
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(128) NOT NULL,
+  url VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE article
+(
+  id INT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  author_id INT NOT NULL,
+  site_id INT NOT NULL,
+  url VARCHAR(255) NOT NULL,
+  date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  date_last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (author_id) REFERENCES author(id),
+  FOREIGN KEY (site_id) REFERENCES site(id)
+);
+
+CREATE TABLE dm
+(
+  id INT NOT NULL AUTO_INCREMENT,
+  author_id INT NOT NULL,
+  date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (author_id) REFERENCES author(id)
+);
+
