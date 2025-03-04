@@ -25,9 +25,12 @@ functions:
     vpc:
       securityGroupIds:
         - ${env:AWS_LAMBDA_SG}
+        - ${env:AWS_RDS_SG}
       subnetIds:
         - ${env:AWS_SUBNET_ID_1}
         - ${env:AWS_SUBNET_ID_2}
+        - ${env:AWS_SUBNET_ID_3}
+        - ${env:AWS_SUBNET_ID_4}
 
 custom:
   webpack:

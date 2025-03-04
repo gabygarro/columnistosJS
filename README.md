@@ -138,5 +138,28 @@ También es necesario agregar la siguiente política inline
 
 <details>
 <summary>Leer instrucciones</summary>
-1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, subnet privada y pública, una internet gateway, un route table adicional para la subnet pública y un NAT Gateway para el route table default.
-</details
+
+1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, 1 subnet privada y 1 pública en dos availability zones, una internet gateway, un route table adicional para las subnets pública y un NAT Gateway para el route table default.
+
+2. En la route table pública, en el tab de Routes, hay que cambiar el route 0.0.0.0/0 para que dirija al Internet gateway. En el tab de Subnet associations, agrega las dos subnets públicas de manera explícita.
+
+3. En la route table default, recomiendo renombrarla para indicar que es la privada. Agregar la ruta 0.0.0.0/0 hacia el NAT Gateway.
+
+4. Agregar un security group para el lambda, con una regla Outbound de HTTPs para 0.0.0.0/0
+
+</details>
+
+### Crear base de datos en la nube
+
+<details>
+<summary>Leer instrucciones</summary>
+
+1. Crear una base de datos MariaDB en free tier y elije una contraseña segura.
+
+2. En la sección de Connectivity, elije la VPC, crea un nuevo subnet group para la db, permite acceso público, elije crear un nuevo VPC group llamado `columnistos-rds-sg` y no deja preferencia para el availability zone.
+
+![image](./docs/imgs/database-setup.png)
+
+3. Usando un programa como TablePlus, conéctate a la base de datos por su nombre para correr [el script de setup](#base-de-datos-local).
+
+</details>
