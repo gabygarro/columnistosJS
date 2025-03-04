@@ -1,0 +1,12 @@
+services:
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MYSQL_DATABASE: columnistos
+      MYSQL_USER: ${DB_USER}
+      MARIADB_ROOT_PASSWORD: ${DB_PWD}
+    volumes:
+      - ./db/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    ports:
+      - "3306:3306"

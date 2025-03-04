@@ -10,7 +10,7 @@
     "local-deploy": "npm run build && NODE_ENV=development sls deploy --stage development -r us-east-1 --aws-profile mfa --verbose"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.8.1",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
