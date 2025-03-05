@@ -7,5 +7,6 @@ export async function handler() {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log("Running locally...");
-  handler();
+  await handler();
+  process.exit(0);
 };
