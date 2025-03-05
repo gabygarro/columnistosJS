@@ -13,12 +13,14 @@ export const connect = async () => {
     connectionLimit: 6,
     trace: true,
   });
-  await pool.getConnection();
-  console.log('Connected to db', pool.totalConnections());
-  return pool;
+  const conn = await pool.getConnection();
+  return conn;
 };
 
-export const end = async (pool) => {
-  await pool.end();
-  console.log('Disconnected from db');
+export const end = (conn) => {
+  if (conn) {
+    conn.end();
+    console.log('Disconnected from db');
+  }
+  return;
 };
