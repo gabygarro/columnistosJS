@@ -28,6 +28,7 @@ env:
   DB_HOST: ${{ vars.DB_HOST }}
   DB_USER: ${{ vars.DB_USER }}
   DB_PWD: ${{ secrets.DB_PWD }}
+  CRAWLER_DIR: ${{ vars.CRAWLER_DIR }}
 
 permissions:
   id-token: write

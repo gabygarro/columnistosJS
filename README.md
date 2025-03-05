@@ -179,6 +179,7 @@ Configurar las siguientes variables de ambiente en GitHub
 - AWS_SUBNET_ID_4
 - DB_HOST
 - DB_USER
+- CRAWLER_DIR
 
 Configurar el siguiente secreto en GitHub
 
