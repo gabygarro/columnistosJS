@@ -15,7 +15,7 @@ y completa las variables de ambiente.
 
 ```bash
 npm i
-docker-compose up -d # Runs database
+docker-compose up -d # Starts database in the background
 ```
 
 ### Base de datos local
@@ -160,7 +160,7 @@ También es necesario agregar la siguiente política inline
 
 ![image](./docs/imgs/database-setup.png)
 
-3. Usando un programa como TablePlus, conéctate a la base de datos por su nombre para correr [el script de setup](#base-de-datos-local).
+3. Usando un programa como TablePlus, conéctate a la base de datos por su nombre para correr [el script para configurar el usuario y el schema](#base-de-datos-local) y [el de crear las tablas](./db/setup.sql).
 
 </details>
 
@@ -186,9 +186,14 @@ Configurar el siguiente secreto en GitHub
 
 </details>
 
-## Configurar security groups
+## Verificar security groups
 
 El security group de rds solamente debe de tener dos inbound rules
 
-- MySQL/Aurora del IP del local
+- MySQL/Aurora del IP del local (se puede eliminar después de crear las tablas)
 - MySQL/Aurora del security group del lambda
+
+El security group de lambda solamente debe de tener dos outbound rules
+
+- MySQL/Aurora hacia el security group del rds
+- HTTPS hacia 0.0.0.0/0
