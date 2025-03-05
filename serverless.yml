@@ -38,11 +38,12 @@ functions:
     handler: scripts/crawl.handler
     timeout: 30
     events:
-      - schedule: cron(04 * * * ? *)
+      - schedule: cron(13 * * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
       DB_PWD: ${env:DB_PWD}
+      CRAWLER_DIR: ${env:CRAWLER_DIR}
 
 custom:
   webpack:
