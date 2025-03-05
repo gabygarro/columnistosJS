@@ -1,32 +1,19 @@
 import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-
-const loadCrawlers = async () => {
-  const crawlerDir = process.env.CRAWLER_DIR;
-  if (!crawlerDir) {
-    throw new Error("Missing crawler directory");
-  }
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const crawlersDir = path.resolve(__dirname, `../crawlers/${process.env.CRAWLER_DIR}`);
-  const crawlerFiles = fs.readdirSync(crawlersDir).filter(file => file.endsWith('.js'));
-  const crawlers = await Promise.all(
-    crawlerFiles.map(async file => {
-      const { default: crawler } = await import(path.join(crawlersDir, file));
-      return crawler;
-    })
-  );
-  return crawlers;
-};
+import nacionCrawler from '../crawlers/cr/nacion.js';
 
 export async function handler() {
   let conn;
   try {
     conn = await dbConnect();
-    const crawlers = await loadCrawlers();
+    const crawlerDir = process.env.CRAWLER_DIR;
+    if (!crawlerDir) {
+      throw new Error("Missing crawler directory");
+    }
+    const allCountryCrawlers = {
+      cr: [nacionCrawler],
+    }
+    const crawlers = allCountryCrawlers[crawlerDir];
     const results = await Promise.allSettled(crawlers.map(async crawler => {
       const { articles, siteName, siteUrl } = await crawler();
       const { insertId: siteId } = await conn.query(`
