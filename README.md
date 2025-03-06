@@ -187,7 +187,10 @@ Configurar el siguiente secreto en GitHub
 
 </details>
 
-## Verificar security groups
+### Verificar security groups
+
+<details>
+<summary>Leer instrucciones</summary>
 
 El security group de rds solamente debe de tener dos inbound rules
 
@@ -198,3 +201,4 @@ El security group de lambda solamente debe de tener dos outbound rules
 
 - MySQL/Aurora hacia el security group del rds
 - HTTPS hacia 0.0.0.0/0
+</details>

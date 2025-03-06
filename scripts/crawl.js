@@ -1,6 +1,14 @@
 import 'dotenv/config';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 import nacionCrawler from '../crawlers/cr/nacion.js';
+import delfinoCrawler from '../crawlers/cr/delfino.js';
+
+const ALL_COUNTRY_CRAWLERS = {
+  cr: [
+    nacionCrawler,
+    delfinoCrawler
+  ],
+}
 
 export async function handler() {
   let conn;
@@ -10,10 +18,7 @@ export async function handler() {
     if (!crawlerDir) {
       throw new Error("Missing crawler directory");
     }
-    const allCountryCrawlers = {
-      cr: [nacionCrawler],
-    }
-    const crawlers = allCountryCrawlers[crawlerDir];
+    const crawlers = ALL_COUNTRY_CRAWLERS[crawlerDir];
     const results = await Promise.allSettled(crawlers.map(async crawler => {
       const { articles, siteName, siteUrl } = await crawler();
       const { insertId: siteId } = await conn.query(`
