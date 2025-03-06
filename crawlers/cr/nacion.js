@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { removeAdditionalSpaces } from '../../utils/string.js';
+import { getUTCDateForDB } from '../../utils/date.js';
 
 const BASE_URL = 'https://www.nacion.com';
 const SITE_URL = 'https://www.nacion.com/opinion/';
@@ -8,14 +9,14 @@ const SITE_URL = 'https://www.nacion.com/opinion/';
 export default async () => {
   const { data } = await axios.get(SITE_URL);
   const $ = cheerio.load(data);
-  const date_last_seen = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const date_last_seen = getUTCDateForDB();
   const articles = [];
   $('article.lg-promo').each((_, item) => {
     const title = $(item).find('h3').text();
     const url = `${BASE_URL}${$(item).find('h3 a').attr('href')}`;
     let author = $(item).find('span.ts-byline__names').text();
     articles.push({ title, author: removeAdditionalSpaces(author), url, date_last_seen });
-  })
+  });
   $('.list-item').each((_, item) => {
     const title = $(item).find('h3').text();
     const url = `${BASE_URL}${$(item).find('h3').parent().attr('href')}`;
