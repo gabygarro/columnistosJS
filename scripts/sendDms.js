@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { getDms, login, sendPrivateWoot } from '../wafrn/index.js';
+import { getDms, login, sendPrivateWoot, sendPrivateReplyWoot } from '../wafrn/index.js';
 
 let conn;
 let token;
@@ -36,8 +36,12 @@ const processDm = async (dm) => {
     await conn.query('UPDATE columnistos.author SET gender = ? WHERE id = ?',
       [formattedGender, authorId]);
     await markDmAsProcessed(dmId);
-    await sendPrivateWoot(`${adminHandlesString} Confirmo ${authorId} ${formattedGender}`, { token });
+    await sendPrivateReplyWoot(`
+      ${adminHandlesString}
+      Confirmo ${authorId} ${formattedGender}
+      `, { token, parent: dmId });
     console.log(`Processed dm ${dmId}: ${authorId} ${formattedGender}`);
+    return;
   } catch (error) {
     console.log(`Error processing dm`);
     console.log(error);

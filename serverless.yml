@@ -48,7 +48,7 @@ functions:
       CRAWLER_DIR: ${env:CRAWLER_DIR}
   sendDms:
     handler: scripts/sendDms.handler
-    timeout: 10
+    timeout: 20
     logRetentionInDays: 7
     events:
       - schedule: cron(*/15 * * * ? *)
