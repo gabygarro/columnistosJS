@@ -2,8 +2,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { getUTCDateForDB } from '../../utils/date.js';
 
-const BASE_URL = 'https://www.semanariouniversidad.com';
-const SITE_URL = 'https://www.semanariouniversidad.com/opinion/';
+const BASE_URL = 'https://semanariouniversidad.com';
+const SITE_URL = 'https://semanariouniversidad.com/opinion/';
 
 export default async () => {
   const { data } = await axios.get(SITE_URL);
