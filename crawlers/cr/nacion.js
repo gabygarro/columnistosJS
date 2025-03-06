@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { removeAdditionalSpaces } from '../../utils/string.js';
 import { getUTCDateForDB } from '../../utils/date.js';
 
 const BASE_URL = 'https://www.nacion.com';
@@ -14,13 +13,13 @@ export default async () => {
   $('article.lg-promo').each((_, item) => {
     const title = $(item).find('h3').text();
     const url = `${BASE_URL}${$(item).find('h3 a').attr('href')}`;
-    const author = removeAdditionalSpaces($(item).find('span.ts-byline__names').text());
+    const author = $(item).find('span.ts-byline__names').text().trim();
     articles.push({ title, author, url, date_last_seen });
   });
   $('.list-item').each((_, item) => {
     const title = $(item).find('h3').text();
     const url = `${BASE_URL}${$(item).find('h3').parent().attr('href')}`;
-    const author = removeAdditionalSpaces($(item).find('span.ts-byline__names').text());
+    const author = $(item).find('span.ts-byline__names').text().trim();
     articles.push({ title, author, url, date_last_seen });
   });
   return { articles, siteName: 'La Nación', siteUrl: SITE_URL };
