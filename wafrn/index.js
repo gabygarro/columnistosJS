@@ -24,7 +24,10 @@ export const login = async () => {
 export const sendPrivateWoot = async (message, { token }) =>
   sendWoot(message, { token, privacy: 10 });
 
-export const sendWoot = async (message, { token, privacy = 0 }) => {
+export const sendPrivateReplyWoot = async (message, { token, parent }) =>
+  sendWoot(message, { token, privacy: 10, parent });
+
+export const sendWoot = async (message, { token, privacy = 0, parent }) => {
   const response = await axios.post(
     `${WAFRN_URL}/api/v3/createPost`,
     {
@@ -32,7 +35,8 @@ export const sendWoot = async (message, { token, privacy = 0 }) => {
       content_warning: "",
       medias: [],
       privacy,
-      tags: ""
+      tags: "",
+      parent,
     },
     {
       headers: {
