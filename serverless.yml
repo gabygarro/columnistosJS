@@ -25,7 +25,7 @@ plugins:
 functions:
   post:
     handler: scripts/post.handler
-    timeout: 30
+    timeout: 5
     events:
       - schedule: cron(00 16 * * ? *)
     environment:
@@ -36,7 +36,7 @@ functions:
       DB_PWD: ${env:DB_PWD}
   crawl:
     handler: scripts/crawl.handler
-    timeout: 30
+    timeout: 5
     events:
       - schedule: cron(30 * * * ? *)
     environment:
@@ -46,7 +46,7 @@ functions:
       CRAWLER_DIR: ${env:CRAWLER_DIR}
   sendDms:
     handler: scripts/sendDms.handler
-    timeout: 30
+    timeout: 5
     events:
       - schedule: cron(*/15 * * * ? *)
     environment:
