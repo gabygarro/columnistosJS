@@ -26,6 +26,7 @@ functions:
   post:
     handler: scripts/post.handler
     timeout: 5
+    logRetentionInDays: 7
     events:
       - schedule: cron(00 16 * * ? *)
     environment:
@@ -37,6 +38,7 @@ functions:
   crawl:
     handler: scripts/crawl.handler
     timeout: 5
+    logRetentionInDays: 7
     events:
       - schedule: cron(30 * * * ? *)
     environment:
@@ -47,6 +49,7 @@ functions:
   sendDms:
     handler: scripts/sendDms.handler
     timeout: 5
+    logRetentionInDays: 7
     events:
       - schedule: cron(*/15 * * * ? *)
     environment:
