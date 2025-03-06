@@ -4,7 +4,13 @@ CREATE TABLE author IF NOT EXISTS
 (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(128) NOT NULL,
-  gender ENUM('M', 'F', 'NB', 'X'), -- NB: Non-binary, X: Ignore author
+  -- M: Male
+  -- F: Female
+  -- NB: Non-binary
+  -- X: Ignore author
+  -- CF: Co authors with at least one female
+  gender ENUM('M', 'F', 'NB', 'X', 'CF'),
+  dm_sent BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (id),
   UNIQUE KEY unique_author(name)
 );
@@ -36,9 +42,8 @@ CREATE TABLE article IF NOT EXISTS
 CREATE TABLE dm IF NOT EXISTS
 (
   id INT NOT NULL AUTO_INCREMENT,
-  author_id INT NOT NULL,
+  dm_id VARCHAR(40) NOT NULL,
   date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  FOREIGN KEY (author_id) REFERENCES author(id)
+  PRIMARY KEY (id)
 );
 

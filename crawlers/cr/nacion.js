@@ -11,13 +11,13 @@ export default async () => {
   const date_last_seen = getUTCDateForDB();
   const articles = [];
   $('article.lg-promo').each((_, item) => {
-    const title = $(item).find('h3').text();
+    const title = $(item).find('h3').text().trim();
     const url = `${BASE_URL}${$(item).find('h3 a').attr('href')}`;
     const author = $(item).find('span.ts-byline__names').text().trim();
     articles.push({ title, author, url, date_last_seen });
   });
   $('.list-item').each((_, item) => {
-    const title = $(item).find('h3').text();
+    const title = $(item).find('h3').text().trim();
     const url = `${BASE_URL}${$(item).find('h3').parent().attr('href')}`;
     const author = $(item).find('span.ts-byline__names').text().trim();
     articles.push({ title, author, url, date_last_seen });
