@@ -180,6 +180,7 @@ Configurar las siguientes variables de ambiente en GitHub
 - DB_HOST
 - DB_USER
 - CRAWLER_DIR
+- ADMIN_HANDLES
 
 Configurar el siguiente secreto en GitHub
 

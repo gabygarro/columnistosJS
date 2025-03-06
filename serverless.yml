@@ -44,6 +44,18 @@ functions:
       DB_USER: ${env:DB_USER}
       DB_PWD: ${env:DB_PWD}
       CRAWLER_DIR: ${env:CRAWLER_DIR}
+  sendDms:
+    handler: scripts/sendDms.handler
+    timeout: 30
+    events:
+      - schedule: cron(*/15 * * * ? *)
+    environment:
+      WAFRN_EMAIL: ${env:WAFRN_EMAIL}
+      WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
+      DB_HOST: ${env:DB_HOST}
+      DB_USER: ${env:DB_USER}
+      DB_PWD: ${env:DB_PWD}
+      ADMIN_HANDLES: ${env:ADMIN_HANDLES}
 
 custom:
   webpack:

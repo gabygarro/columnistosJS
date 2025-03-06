@@ -6,6 +6,7 @@ module.exports = {
   entry: {
     post: './scripts/post.js',
     crawl: './scripts/crawl.js',
+    sendDms: './scripts/sendDms.js',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
