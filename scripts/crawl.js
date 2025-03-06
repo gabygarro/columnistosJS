@@ -2,11 +2,13 @@ import 'dotenv/config';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 import nacionCrawler from '../crawlers/cr/nacion.js';
 import delfinoCrawler from '../crawlers/cr/delfino.js';
+import elFinancieroCrawler from '../crawlers/cr/elfinancierocr.js';
 
 const ALL_COUNTRY_CRAWLERS = {
   cr: [
     nacionCrawler,
-    delfinoCrawler
+    delfinoCrawler,
+    elFinancieroCrawler
   ],
 }
 

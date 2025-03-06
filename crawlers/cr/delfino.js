@@ -20,6 +20,6 @@ export default async () => {
         $(links[1]).attr('href')
     }`;
     articles.push({ title, author, url, date_last_seen });
-  })
+  });
   return { articles, siteName: 'Delfino', siteUrl: SITE_URL };
 };

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { removeAdditionalSpaces } from '../../utils/string.js';
 import { getUTCDateForDB } from '../../utils/date.js';
+import { removeAdditionalSpaces } from '../../utils/string.js';
 
-const BASE_URL = 'https://www.nacion.com';
-const SITE_URL = 'https://www.nacion.com/opinion/';
+const BASE_URL = 'https://www.elfinancierocr.com';
+const SITE_URL = 'https://www.elfinancierocr.com/opinion/';
 
 export default async () => {
   const { data } = await axios.get(SITE_URL);
@@ -23,5 +23,5 @@ export default async () => {
     const author = removeAdditionalSpaces($(item).find('span.ts-byline__names').text());
     articles.push({ title, author, url, date_last_seen });
   });
-  return { articles, siteName: 'La Nación', siteUrl: SITE_URL };
+  return { articles, siteName: 'El Financiero', siteUrl: SITE_URL };
 };
