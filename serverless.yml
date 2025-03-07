@@ -26,7 +26,6 @@ plugins:
 functions:
   post:
     handler: scripts/post.handler
-    timeout: 5
     logRetentionInDays: 7
     events:
       - schedule: cron(00 16 * * ? *)
@@ -38,10 +37,9 @@ functions:
       DB_PWD: ${env:DB_PWD}
   crawl:
     handler: scripts/crawl.handler
-    timeout: 5
     logRetentionInDays: 7
     events:
-      - schedule: cron(45 8-17/3,23 * * ? *)
+      - schedule: cron(00 8-18/1,23 * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
@@ -49,7 +47,6 @@ functions:
       CRAWLER_DIR: ${env:CRAWLER_DIR}
   sendDms:
     handler: scripts/sendDms.handler
-    timeout: 20
     logRetentionInDays: 7
     events:
       - schedule: cron(*/15 * * * ? *)
