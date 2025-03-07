@@ -139,13 +139,15 @@ También es necesario agregar la siguiente política inline
 <details>
 <summary>Leer instrucciones</summary>
 
-1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, 1 subnet privada y 1 pública en dos availability zones, una internet gateway, un route table adicional para las subnets pública y un NAT Gateway para el route table default.
+1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, 1 subnet privada y 1 pública en dos availability zones, una internet gateway, dos route tables privados para cada AZ, un route table público y dos NAT Gateway con asociación a la subnet pública de cada AZ para enlazar con cada route table privado.
 
-2. En la route table pública, en el tab de Routes, hay que cambiar el route 0.0.0.0/0 para que dirija al Internet gateway. En el tab de Subnet associations, agrega las dos subnets públicas de manera explícita.
+2. En el route table público, en el tab de Routes, hay que cambiar el route 0.0.0.0/0 para que dirija al Internet gateway. En el tab de Subnet associations, agrega las dos subnets públicas de manera explícita.
 
-3. En la route table default, recomiendo renombrarla para indicar que es la privada. Agregar la ruta 0.0.0.0/0 hacia el NAT Gateway.
+3. En los dos route table privados, recomiendo renombrarlos para indicar el AZ. Agregar la ruta 0.0.0.0/0 hacia el NAT Gateway asociado al mismo AZ.
 
 4. Agregar un security group para el lambda, con una regla Outbound de HTTPs para 0.0.0.0/0
+
+5. En las subnets públicas, marcar en la configuración "Enable auto-assign public IPv4 address"
 
 </details>
 
