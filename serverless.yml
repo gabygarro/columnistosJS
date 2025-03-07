@@ -41,7 +41,7 @@ functions:
     timeout: 5
     logRetentionInDays: 7
     events:
-      - schedule: cron(45 8-23/3 * * ? *)
+      - schedule: cron(45 8-17/3,23 * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
