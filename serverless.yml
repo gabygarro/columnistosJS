@@ -39,7 +39,7 @@ functions:
     handler: scripts/crawl.handler
     logRetentionInDays: 7
     events:
-      - schedule: cron(00 8-18/1,23 * * ? *)
+      - schedule: cron(55 8-23/3, * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
