@@ -75,9 +75,9 @@ export async function handler() {
       const percentOfWomen = Math.round(femaleCount / totalAuthors * 100);
       const percentOfWomenCoauthors = Math.round(coAuthorFemaleCount / totalAuthors * 100);
 
-      dailySummary = `${dailySummary}\n  ${siteName}: ${percentOfWomen}% (${femaleCount} de ${totalAuthors})`;
+      dailySummary = `${dailySummary}\n\t${siteName}: ${percentOfWomen}% (${femaleCount} de ${totalAuthors})`;
       if (coAuthorFemaleCount > 0) {
-        dailySummary = `${dailySummary}\n    Artículos con al menos una mujer co autora: ${
+        dailySummary = `${dailySummary}\n\t\tArtículos con al menos una mujer co autora: ${
           percentOfWomenCoauthors
         }% (${coAuthorFemaleCount} de ${totalAuthors})`;
       }
