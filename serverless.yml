@@ -5,6 +5,7 @@ frameworkVersion: "3"
 provider:
   name: aws
   runtime: nodejs20.x
+  region: us-east-1
   vpc:
     securityGroupIds:
       - ${env:AWS_LAMBDA_SG}
@@ -40,7 +41,7 @@ functions:
     timeout: 5
     logRetentionInDays: 7
     events:
-      - schedule: cron(30 * * * ? *)
+      - schedule: cron(45 8-23/3 * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
