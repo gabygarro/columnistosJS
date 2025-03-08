@@ -53,9 +53,9 @@ export async function handler() {
         console.error(`Error processing crawler ${index}:`, result.reason);
       }
     });
+    dbEnd(conn);
   } catch (error) {
     console.log(error);
-  } finally {
     dbEnd(conn);
   }
 };
