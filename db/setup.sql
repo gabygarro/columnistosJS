@@ -1,6 +1,6 @@
 USE columnistos;
 
-CREATE TABLE author IF NOT EXISTS
+CREATE TABLE author
 (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(128) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE author IF NOT EXISTS
   UNIQUE KEY unique_author(name)
 );
 
-CREATE TABLE site IF NOT EXISTS
+CREATE TABLE site
 (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(128) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE site IF NOT EXISTS
   UNIQUE KEY unique_site(name, url)
 );
 
-CREATE TABLE article IF NOT EXISTS
+CREATE TABLE article
 (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(191) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE article IF NOT EXISTS
   UNIQUE KEY unique_article_per_author_site (title, author_id, site_id)
 );
 
-CREATE TABLE dm IF NOT EXISTS
+CREATE TABLE dm
 (
   id INT NOT NULL AUTO_INCREMENT,
   dm_id VARCHAR(40) NOT NULL,
@@ -47,3 +47,10 @@ CREATE TABLE dm IF NOT EXISTS
   PRIMARY KEY (id)
 );
 
+CREATE TABLE log
+(
+  id INT NOT NULL AUTO_INCREMENT,
+  last_woot_date VARCHAR(10) NOT NULL,
+  date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
