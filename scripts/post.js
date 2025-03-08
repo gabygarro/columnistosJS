@@ -6,6 +6,14 @@ import { getYesterdaysDate } from '../utils/date.js';
 
 const getRandomInt = (max) =>
   Math.floor(Math.random() * max);
+const checkPreviousRun = async (conn, date) =>
+  conn.query(`
+    SELECT 1 FROM columnistos.log WHERE last_woot_date = ? LIMIT 1
+  `, [date]);
+const setRunForToday = async (conn, date) =>
+  conn.query(`
+    INSERT INTO columnistos.log(last_woot_date) VALUES(?)
+  `, [date]);
 const getStats = async (conn) =>
   conn.query(`
     SELECT
@@ -61,9 +69,15 @@ export async function handler() {
   let conn;
   try {
     conn = await dbConnect();
-    const token = await login();
-    const stats = await getStats(conn);
     const date = getYesterdaysDate();
+    const previousRun = await checkPreviousRun(conn, date);
+    if (previousRun.length > 0) {
+      console.log('Already posted for today');
+      dbEnd(conn);
+      return;
+    }
+    const loginPromise = login();
+    const stats = await getStats(conn);
     let dailySummary = DAILY_REPORT[getRandomInt(4)].replace('{fecha}', date);
     let textsToWoot = [];
     let coAuthorTextsToWoot = [];
@@ -102,12 +116,14 @@ export async function handler() {
         }
       }
     }
-    await sendWoot(dailySummary, { token});
-    await Promise.all(textsToWoot.map(text => sendWoot(text, { token})));
-    await Promise.all(coAuthorTextsToWoot.map(text => sendWoot(text, { token})));
+    const token = await loginPromise;
+    await sendWoot(dailySummary, { token });
+    await Promise.all(textsToWoot.map(text => sendWoot(text, { token })));
+    await Promise.all(coAuthorTextsToWoot.map(text => sendWoot(text, { token })));
+    await setRunForToday(conn, date);
+    dbEnd(conn);
   } catch (error) {
     console.log(error);
-  } finally {
     dbEnd(conn);
   }
 };
