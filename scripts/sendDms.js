@@ -94,9 +94,9 @@ export async function handler() {
       console.log(`Requested gender for author ${id} ${name}`);
       await conn.query('UPDATE columnistos.author SET dm_sent = 1 WHERE id = ?', [id]);
     }
+    dbEnd(conn);
   } catch (error) {
     console.log(error);
-  } finally {
     dbEnd(conn);
   }
 };
