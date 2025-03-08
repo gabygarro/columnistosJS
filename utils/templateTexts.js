@@ -26,6 +26,6 @@ export const DAILY_REPORT = [
   'Porcentaje de columnas de opinión publicadas escritas por mujeres en el día de ayer ({fecha}):',
   'Ayer ({fecha}) el porcentaje de columnistas de opinión mujeres fue:',
   'De las columnas de opinión publicadas ayer ({fecha}), estas son en porcentaje, las que fueron escritas por mujeres:',
-  'De las columnas de opinión publicadas ayer ({fecha}), estas son en porcentaje, las {escritas} por mujeres:'
+  'De las columnas de opinión publicadas ayer ({fecha}), estas son en porcentaje, las escritas por mujeres:'
 ];
 

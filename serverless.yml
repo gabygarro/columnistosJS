@@ -28,7 +28,7 @@ functions:
     handler: scripts/post.handler
     logRetentionInDays: 7
     events:
-      - schedule: cron(00 16-23 * * ? *)
+      - schedule: cron(*/15 16-23 * * ? *)
     environment:
       WAFRN_EMAIL: ${env:WAFRN_EMAIL}
       WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
@@ -39,7 +39,7 @@ functions:
     handler: scripts/crawl.handler
     logRetentionInDays: 7
     events:
-      - schedule: cron(55 13-23/2,00,4,5 * * ? *)
+      - schedule: cron(55 13-23/2,00,03,04,05 * * ? *)
     environment:
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
