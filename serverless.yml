@@ -43,6 +43,8 @@ functions:
       - schedule: cron(55 13-23/2,00,03,04,05 * * ? *)
     timeout: 29
     environment:
+      WAFRN_EMAIL: ${env:WAFRN_EMAIL}
+      WAFRN_PASSWORD: ${env:WAFRN_PASSWORD}
       DB_HOST: ${env:DB_HOST}
       DB_USER: ${env:DB_USER}
       DB_PWD: ${env:DB_PWD}
