@@ -4,6 +4,8 @@ import nacionCrawler from '../crawlers/cr/nacion.js';
 import delfinoCrawler from '../crawlers/cr/delfino.js';
 import elFinancieroCrawler from '../crawlers/cr/elfinancierocr.js';
 import semanarioUniversidadCrawler from '../crawlers/cr/semanariouniversidad.js';
+import { sendDms } from './sendDms.js';
+import { login } from '../wafrn/index.js';
 
 const ALL_COUNTRY_CRAWLERS = {
   cr: [
@@ -53,6 +55,9 @@ export async function handler() {
         console.error(`Error processing crawler ${index}:`, result.reason);
       }
     });
+    // Send dms in case there's new authors from this crawl
+    const token = await login();
+    await sendDms(conn, token);
     dbEnd(conn);
   } catch (error) {
     console.log(error);
