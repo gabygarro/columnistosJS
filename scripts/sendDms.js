@@ -47,10 +47,10 @@ const processDm = async (conn, token, dm) => {
   }
 };
 
-export const sendDms = async (conn, token) => {
+export const sendDms = async (conn, token, ignoreDmSent = false) => {
   const authors = await conn.query(`
     SELECT id, name FROM columnistos.author
-      WHERE gender IS NULL AND dm_sent = 0
+      WHERE gender IS NULL ${ignoreDmSent === false ? 'AND dm_sent = 0' : ''}
       LIMIT 5`
   );
   if (authors.length === 0) {
