@@ -3,6 +3,7 @@ import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 import { login, sendWoot } from '../wafrn/index.js';
 import { NO_WOMAN, ONE_WOMAN, ONE_MAN, SOME_WOMAN, ALL_WOMAN, ONE_WOMAN_COAUTHOR, DAILY_REPORT } from '../utils/templateTexts.js';
 import { getYesterdaysDate } from '../utils/date.js';
+import { sendDms } from './sendDms.js';
 
 const getRandomInt = (max) =>
   Math.floor(Math.random() * max);
@@ -70,13 +71,23 @@ export async function handler() {
   try {
     conn = await dbConnect();
     const date = getYesterdaysDate();
-    const previousRun = await checkPreviousRun(conn, date);
-    if (previousRun.length > 0) {
+    const [previousRun] = await checkPreviousRun(conn, date);
+    if (previousRun) {
       console.log('Already posted for today');
       dbEnd(conn);
       return;
     }
-    const loginPromise = login();
+    const [pendingAuthor] = await conn.query(`
+      SELECT id, name FROM columnistos.author
+        WHERE gender IS NULL
+        LIMIT 1`
+    );
+    if (pendingAuthor) {
+      const token = await login();
+      await sendDms(conn, token, true);
+      dbEnd(conn);
+      return;
+    }
     const stats = await getStats(conn);
     let dailySummary = DAILY_REPORT[getRandomInt(4)].replace('{fecha}', date);
     let textsToWoot = [];
@@ -86,8 +97,11 @@ export async function handler() {
       const siteName = siteStats.site_name;
       const femaleCount = Number(siteStats.female_count);
       const coAuthorFemaleCount = Number(siteStats.coauthor_female_count);
-      const percentOfWomen = Math.round(femaleCount / totalAuthors * 100);
-      const percentOfWomenCoauthors = Math.round(coAuthorFemaleCount / totalAuthors * 100);
+      const percentOfWomen = femaleCount === 0 ? Math.round(femaleCount / totalAuthors * 100) : 0;
+      const percentOfWomenCoauthors =
+        coAuthorFemaleCount === 0
+          ? Math.round(coAuthorFemaleCount / totalAuthors * 100)
+          : 0;
 
       dailySummary = `${dailySummary}\n\t${siteName}: ${percentOfWomen}% (${femaleCount} de ${totalAuthors})`;
       if (coAuthorFemaleCount > 0) {
@@ -116,7 +130,7 @@ export async function handler() {
         }
       }
     }
-    const token = await loginPromise;
+    const token = await login();
     await sendWoot(dailySummary, { token });
     await Promise.all(textsToWoot.map(text => sendWoot(text, { token })));
     await Promise.all(coAuthorTextsToWoot.map(text => sendWoot(text, { token })));
