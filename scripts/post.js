@@ -39,7 +39,7 @@ const getStats = async (conn) =>
   `);
 
 const MIN_NEW_ARTICLES = 2;
-const MIN_PERCENT_SOME = 25;
+const MIN_PERCENT_SOME = 45;
 
 const selectText = (female_count, total_authors, percentOfWomen) => {
   const randomIndex = getRandomInt(2);
@@ -49,7 +49,7 @@ const selectText = (female_count, total_authors, percentOfWomen) => {
     return ONE_WOMAN[randomIndex];
   } else if (female_count === total_authors - 1) {
     return ONE_MAN[randomIndex];
-  } else if (percentOfWomen < MIN_PERCENT_SOME) {
+  } else if (percentOfWomen > MIN_PERCENT_SOME) {
     return SOME_WOMAN[randomIndex];
   } else if (female_count === total_authors) {
     return ALL_WOMAN[randomIndex];
