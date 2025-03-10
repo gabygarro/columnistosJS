@@ -33,7 +33,7 @@ const getStats = async (conn) =>
     WHERE ar.date_added >=
       (UTC_DATE() - INTERVAL 2 DAY + INTERVAL 6 HOUR)
       AND ar.date_added <
-      (UTC_DATE() + INTERVAL 1 DAY + INTERVAL 6 HOUR)
+      (UTC_DATE() - INTERVAL 1 DAY + INTERVAL 6 HOUR)
     GROUP BY s.id
     ORDER BY s.name;
   `);
