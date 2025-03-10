@@ -70,8 +70,7 @@ export async function handler() {
   let conn;
   try {
     conn = await dbConnect();
-    // const date = getYesterdaysDate();
-    const date = "08/03/2025";
+    const date = getYesterdaysDate();
     const [previousRun] = await checkPreviousRun(conn, date);
     if (previousRun) {
       console.log('Already posted for today');
