@@ -97,9 +97,9 @@ export async function handler() {
       const siteName = siteStats.site_name;
       const femaleCount = Number(siteStats.female_count);
       const coAuthorFemaleCount = Number(siteStats.coauthor_female_count);
-      const percentOfWomen = femaleCount === 0 ? Math.round(femaleCount / totalAuthors * 100) : 0;
+      const percentOfWomen = femaleCount !== 0 ? Math.round(femaleCount / totalAuthors * 100) : 0;
       const percentOfWomenCoauthors =
-        coAuthorFemaleCount === 0
+        coAuthorFemaleCount !== 0
           ? Math.round(coAuthorFemaleCount / totalAuthors * 100)
           : 0;
 
