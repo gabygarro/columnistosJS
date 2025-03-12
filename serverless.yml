@@ -28,7 +28,7 @@ functions:
     handler: scripts/post.handler
     logRetentionInDays: 7
     events:
-      - schedule: cron(00 16-23,01 * * ? *)
+      - schedule: cron(00 16-23 * * ? *)
     timeout: 29
     environment:
       WAFRN_EMAIL: ${env:WAFRN_EMAIL}
