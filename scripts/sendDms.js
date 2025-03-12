@@ -48,6 +48,12 @@ const processDm = async (conn, token, dm) => {
 };
 
 export const sendDms = async (conn, token, ignoreDmSent = false) => {
+  const adminHandles = process.env.ADMIN_HANDLES;
+  if (!adminHandles) {
+    throw new Error("Missing admin handles");
+  }
+  const adminHandleList = adminHandles.split(',')
+  adminHandlesString = adminHandleList.map(handle => `@${handle}`).join(' ')
   const authors = await conn.query(`
     SELECT id, name FROM columnistos.author
       WHERE gender IS NULL ${ignoreDmSent === false ? 'AND dm_sent = 0' : ''}
