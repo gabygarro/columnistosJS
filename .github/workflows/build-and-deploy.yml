@@ -32,31 +32,8 @@ permissions:
   packages: write
 
 jobs:
-  semantic-release:
-    if: "!contains(github.event.head_commit.message, '[no ci]')"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Semantic Release
-        env:
-          GH_TOKEN: ${{ env.GH_TOKEN }}
-        run: |
-          npm ci
-          npx semantic-release
-
   build-publish:
-    needs: semantic-release
+    if: "!contains(github.event.head_commit.message, '[no ci]')"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -64,9 +41,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Get Version
-        id: version
-        run: echo "version=$(git describe --tags `git rev-list --tags --max-count=1`) >> $GITHUB_OUTPUT
+        with:
+          fetch-depth: 0
+      - name: Get latest tag
+        id: get_version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          echo "Current version: $LATEST_TAG"
+          # Split into major.minor.patch
+          MAJOR=$(echo $LATEST_TAG | cut -d'.' -f1)
+          MINOR=$(echo $LATEST_TAG | cut -d'.' -f2)
+          PATCH=$(echo $LATEST_TAG | cut -d'.' -f3)
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+      - name: Create new tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.get_version.outputs.new_version }}";
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${version}`,
+              sha: context.sha
+            });
       - name: Docker Login
         uses: docker/login-action@v3.3.0
         with:
