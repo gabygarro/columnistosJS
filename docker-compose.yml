@@ -1,4 +1,41 @@
 services:
+  crawl:
+    image: crawl:latest
+    container_name: columnistos-crawl
+    profiles:
+      - donotstart
+    environment:
+      WAFRN_EMAIL: ${WAFRN_EMAIL}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      CRAWLER_DIR: ${CRAWLER_DIR}
+      WAFRN_PASSWORD: ${WAFRN_PASSWORD}
+      DB_PWD: ${DB_PWD}
+      ADMIN_HANDLES: ${ADMIN_HANDLES}
+  post:
+    image: post:latest
+    container_name: columnistos-post
+    profiles:
+      - donotstart
+    environment:
+      WAFRN_EMAIL: ${WAFRN_EMAIL}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      WAFRN_PASSWORD: ${WAFRN_PASSWORD}
+      DB_PWD: ${DB_PWD}
+      ADMIN_HANDLES: ${ADMIN_HANDLES}
+  send-dms:
+    image: send-dms:latest
+    container_name: columnistos-send-dms
+    profiles:
+      - donotstart
+    environment:
+      WAFRN_EMAIL: ${WAFRN_EMAIL}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      WAFRN_PASSWORD: ${WAFRN_PASSWORD}
+      DB_PWD: ${DB_PWD}
+      ADMIN_HANDLES: ${ADMIN_HANDLES}
   db:
     image: mariadb:latest
     container_name: columnistos-mariadb

@@ -14,46 +14,139 @@ concurrency:
 env:
   NODE_VERSION: "20.18.2"
   AWS_REGION: us-east-1
-  AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_LAMBDA_SG: ${{ vars.AWS_LAMBDA_SG }}
-  AWS_RDS_SG: ${{ vars.AWS_RDS_SG }}
-  AWS_SUBNET_ID_1: ${{ vars.AWS_SUBNET_ID_1 }}
-  AWS_SUBNET_ID_2: ${{ vars.AWS_SUBNET_ID_2 }}
-  AWS_SUBNET_ID_3: ${{ vars.AWS_SUBNET_ID_3 }}
-  AWS_SUBNET_ID_4: ${{ vars.AWS_SUBNET_ID_4 }}
   WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
-  WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
   DB_HOST: ${{ vars.DB_HOST }}
   DB_USER: ${{ vars.DB_USER }}
-  DB_PWD: ${{ secrets.DB_PWD }}
   CRAWLER_DIR: ${{ vars.CRAWLER_DIR }}
   ADMIN_HANDLES: ${{ vars.ADMIN_HANDLES }}
+  DOKS_CLUSTER_NAME: ${{ vars.DOKS_CLUSTER_NAME }}
+  DOKS_REGION: ${{ vars.DOKS_REGION }}
+  WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
+  DB_PWD: ${{ secrets.DB_PWD }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
 permissions:
   id-token: write
   contents: read
+  packages: write
 
 jobs:
-  build_and_deploy:
+  semantic-release:
     if: "!contains(github.event.head_commit.message, '[no ci]')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@master
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
-      - run: aws sts get-caller-identity
-      - run: npm i
-      - name: Install Serverless Framework
-        run: npm install -g serverless@3.39.0
-      - name: Build
-        run: npm run build
-      - run: sls deploy --stage production -r ${{ env.AWS_REGION }} --verbose
+          node-version: 20
+      - name: Semantic Release
+        env:
+          GH_TOKEN: ${{ env.GH_TOKEN }}
+        run: |
+          npm ci
+          npx semantic-release
+
+  build-publish:
+    needs: semantic-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ["crawl", "post", "send-dms"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Version
+        id: version
+        run: echo "version=$(git describe --tags `git rev-list --tags --max-count=1`) >> $GITHUB_OUTPUT
+      - name: Docker Login
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ env.GH_TOKEN }}
+      - name: Build and Push
+        uses: docker/build-push-action@v6.5.0
+        with:
+          context: .
+          file: ${{ matrix.service }}.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:latest
+          build-args: |
+            NODE_ENV=production
+
+  deploy:
+    needs: [semantic-release, build-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Version
+        id: version
+        run: echo "version=$(git describe --tags `git rev-list --tags --max-count=1`) >> $GITHUB_OUTPUT
+      - name: Configure DigitalOcean CLI
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ env.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Configure Kubeconfig
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.DOKS_CLUSTER_NAME }} --region ${{ env.DOKS_REGION }}
+          kubectl config use-context do-${{ env.DOKS_REGION }}-${{ env.DOKS_CLUSTER_NAME }}
+      - name: Create ConfigMap and Secret
+        run: |
+          # Base64 encode secrets
+          DB_PWD_B64=$(echo -n "${{ env.DB_PWD }}" | base64 -w0)
+          WAFRN_PASSWORD_B64=$(echo -n "${{ env.WAFRN_PASSWORD }}" | base64 -w0)
+          # Create config.yaml with actual values
+          cat <<EOF | kubectl apply -f -
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: columnistos-config
+          data:
+            WAFRN_EMAIL: "${{ env.WAFRN_EMAIL }}"
+            DB_HOST: "${{ env.DB_HOST }}"
+            DB_USER: "${{ env.DB_USER }}"
+            CRAWLER_DIR: "${{ env.CRAWLER_DIR }}"
+            ADMIN_HANDLES: "${{ env.ADMIN_HANDLES }}"
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: columnistos-secret
+          type: Opaque
+          data:
+            DB_PWD: "$DB_PWD_B64"
+            WAFRN_PASSWORD: "$WAFRN_PASSWORD_B64"
+          EOF
+      - name: Create Registry Secret
+        run: |
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ env.GH_TOKEN }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+      - name: Apply and Update Manifests
+        run: |
+          # Replace placeholders in YAML
+          sed -i "s/__GH_OWNER__/${{ github.repository_owner }}/g" scripts.yaml
+          sed -i "s/__VERSION__/${{ steps.version.outputs.version }}/g" scripts.yaml
+          # Apply manifests
+          kubectl apply -f scripts.yaml
+      - name: Update Deployment
+        run: |
+          for service in crawl post send-dms; do
+            kubectl set image cronjob/$service \
+              $service=ghcr.io/${{ github.repository_owner }}/$service:${{ steps.version.outputs.version }} \
+              --record
+          done

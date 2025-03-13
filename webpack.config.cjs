@@ -9,8 +9,14 @@ module.exports = {
     sendDms: './scripts/sendDms.js',
   },
   output: {
+    module: true,
     path: path.resolve(__dirname, 'dist'),
     filename: 'scripts/[name].js',
-    libraryTarget: 'commonjs2',
+    library: {
+      type: 'module'
+    }
   },
+  experiments: {
+    outputModule: true
+  }
 };

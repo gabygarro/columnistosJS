@@ -15,10 +15,8 @@ y completa las variables de ambiente.
 
 ```bash
 npm i
-docker-compose up -d # Starts database in the background
+docker-compose up -d # Correr la base de datos
 ```
-
-### Base de datos local
 
 Usa un programa como TablePlus para conectarse a la base de datos local para correr la configuración
 
@@ -29,179 +27,95 @@ GRANT ALL PRIVILEGES ON columnistos.* TO '<<DB_USER>>';
 FLUSH PRIVILEGES;
 ```
 
-## Configurar un proyecto nuevo en AWS
-
-### Deployment local a la nube
-
-<details>
-<summary>Leer instrucciones</summary>
+Puedes correr cada uno de los scripts de manera separada con los siguientes comandos:
 
 ```bash
-npm i -g serverless@3.40.0
+npm run scripts:crawl
+npm run scripts:post
+npm run scripts:sendDms
 ```
 
-En AWS, en el menú superior derecho elige "Security credentials". Crea un nuevo set de Access keys para CLI y guarda el csv a la computadora. Llena el siguiente comando con esos valores.
+## Docker Compose
 
 ```bash
-serverless config credentials --provider aws --key XXXX --secret XXXX
+docker build -t crawl:latest -f crawl.Dockerfile .
+docker build -t post:latest -f post.Dockerfile .
+docker build -t send-dms:latest -f sendDms.Dockerfile .
+docker compose run --rm crawl
+docker compose run --rm post
+docker compose run --rm sendDms
 ```
 
-</details>
+## Kubernetes en local
 
-### Instrucciones con MFA
-
-<details>
-<summary>Leer instrucciones</summary>
-
-Si tienes MFA habilitado, guarda de la misma página Security credentials el identificador de tu dispositivo MFA que tiene el patrón `arn:aws:iam:xxx`.
-
-Vamos a generar unas credenciales temporales que vamos a guardar en un perfil llamado `mfa`. Por defecto expiran en un día.
-Para que Serverless sepa que queremos usar estas credenciales temporales, hay que pasarle el parámetro `--aws-profile mfa`.
+### Instalación
 
 ```bash
-# hay que deshabilitar estas variables primero
-unset AWS_ACCESS_KEY_ID
-unset AWS_SECRET_ACCESS_KEY
-# este comando devuelve con json con los valores temporales para aws_access_key_id, aws_secret_access_key y aws_session_token
-aws sts get-session-token --serial-number arn:aws:iam:xxx --token-code [token-de-dispositivo-mfa]
-# ingresa los valores temporales de key id and key secret del comando anterior
-aws configure --profile mfa
-# ingresa el valor temporal de session token
-aws configure --profile mfa set aws_session_token [session-token-del-comando-anterior]
-export AWS_PROFILE="mfa" # talvez no es completamente necesario
+brew install kubectl
+brew install minikube
+# Verificar instalación
+kubectl version --client
+minikube version
+minikube start --driver=docker
+docker build -t crawl:latest -f crawl.Dockerfile .
+docker build -t post:latest -f post.Dockerfile .
+docker build -t send-dms:latest -f sendDms.Dockerfile .
+kubectl create secret generic columnistos-secret --from-env-file=.env
+kubectl create configmap columnistos-config --from-env-file=.env
+kubectl apply -f scripts.yaml
 ```
 
-#### Comando para hacer deployment
+### Desarrollo
+
+Algunos comandos útiles durante desarrollo local de kubernetes.
 
 ```bash
-npm run local-deploy
+minikube start --driver=docker
+minikube dashboard
+kubectl delete secret columnistos-secret
+kubectl delete configmap columnistos-config
+# Forzar una nueva versión de las imágenes
+minikube image load crawl:latest
+minikube image load post:latest
+minikube image load send-dms:latest
+minikube stop
 ```
 
-</details>
+## Deployment a DigitalOcean
 
-### Deployment desde GitHub Actions
-
-<details>
-<summary>Leer instrucciones</summary>
-
-Cuando ocurre un commit en `main`, un [GitHub Workflow](.github/workflows/build-and-deploy.yml) actualiza el deployment en AWS. Para que Github sea capaz de hacer cambios en AWS, hay que darle un rol en nuestra cuenta de AWS.
-
-1. Crear un Identity provider en AWS.
-   En la consola de IAM, elije Identity providers y Add provider. En Configure provider, elije OpenID Connect.
-   En Provider URL, usa `https://token.actions.githubusercontent.com`. Para la audiencia, usa `sts.amazonaws.com`.
-2. Asigna un rol IAM al identity provider.
-   En la página del identity provider, elije Assign role. Elije crear un nuevo rol.
-   El nombre puede ser `GitHubAction-AssumeRoleWithAction` y para los permisos asigna los siguientes:
-
-```
-AmazonAPIGatewayAdministrator
-AmazonRoute53AutoNamingFullAccess
-AmazonRoute53ReadOnlyAccess
-AmazonS3FullAccess
-AWSCertificateManagerReadOnly
-AWSCloudFormationFullAccess
-AWSLambda_FullAccess
-AmazonAPIGatewayPushToCloudWatchLogs
-IAMFullAccess
-CloudWatchLogsFullAccess
-```
-
-También es necesario agregar la siguiente política inline
-
-```
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Statement1",
-      "Effect": "Allow",
-      "Action": [
-        "events:DescribeRule",
-        "events:PutRule",
-        "events:PutTargets"
-      ],
-      "Resource": [
-        "*"
-      ]
-    }
-  ]
-}
-```
-
-3. Copia el ARN del rol a la variable de ambiente de GitHub `AWS_ROLE_TO_ASSUME`.
-
-4. Configura los secretos de ambiente de GitHub `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`.
-
-</details>
-
-### Crear VPC
-
-<details>
-<summary>Leer instrucciones</summary>
-
-1. Siguiendo las instrucciones de (este artículo)[https://medium.com/financial-engines-techblog/aws-lambdas-with-a-static-outgoing-ip-5174a1e70245], crea un VPC, 1 subnet privada y 1 pública en dos availability zones, una internet gateway, dos route tables privados para cada AZ, un route table público y dos NAT Gateway con asociación a la subnet pública de cada AZ para enlazar con cada route table privado.
-
-2. En el route table público, en el tab de Routes, hay que cambiar el route 0.0.0.0/0 para que dirija al Internet gateway. En el tab de Subnet associations, agrega las dos subnets públicas de manera explícita.
-
-3. En los dos route table privados, recomiendo renombrarlos para indicar el AZ. Agregar la ruta 0.0.0.0/0 hacia el NAT Gateway asociado al mismo AZ.
-
-4. Agregar un security group para el lambda, con una regla Outbound de HTTPs para 0.0.0.0/0
-
-5. En las subnets públicas, marcar en la configuración "Enable auto-assign public IPv4 address"
-
-</details>
-
-### Crear base de datos en la nube
-
-<details>
-<summary>Leer instrucciones</summary>
-
-1. Crear una base de datos MariaDB en free tier y elije una contraseña segura.
-
-2. En la sección de Connectivity, elije la VPC, crea un nuevo subnet group para la db, permite acceso público, elije crear un nuevo VPC group llamado `columnistos-rds-sg` y no deja preferencia para el availability zone.
-
-![image](./docs/imgs/database-setup.png)
-
-3. Usando un programa como TablePlus, conéctate a la base de datos por su nombre para correr [el script para configurar el usuario y el schema](#base-de-datos-local) y [el de crear las tablas](./db/setup.sql).
-
-</details>
+Cada vez que hay commit nuevo en `main` que no contiene la palabra `[no ci]`, corre un workflow que hace deploy a un Kubernetes de DigitalOcean.
 
 ### Configurar variables en el repositorio
 
-<details>
-<summary>Leer instrucciones</summary>
+Configurar las siguientes variables de ambiente en GitHub, usar como base `env.example`
 
-Configurar las siguientes variables de ambiente en GitHub
+```
+WAFRN_EMAIL
+DB_HOST
+DB_USER=webadmin
+CRAWLER_DIR
+ADMIN_HANDLES
+DOKS_CLUSTER_NAME
+DOKS_REGION
+```
 
-- AWS_LAMBDA_SG
-- AWS_RDS_SG
-- AWS_SUBNET_ID_1
-- AWS_SUBNET_ID_2
-- AWS_SUBNET_ID_3
-- AWS_SUBNET_ID_4
-- DB_HOST
-- DB_USER
-- CRAWLER_DIR
-- ADMIN_HANDLES
+Configurar los siguientes secretos en GitHub
 
-Configurar el siguiente secreto en GitHub
+```
+DB_PWD
+WAFRN_PASSWORD
+GH_TOKEN
+DIGITALOCEAN_ACCESS_TOKEN
+```
 
-- DB_PWD
+### Configurar Github token para semantic release
 
-</details>
+Crear un [personal access token](https://github.com/settings/tokens/new) con una expiración de 1 año (custom) con scopes `repo` y `write:packages` y guardar el valor en el secret `GH_TOKEN`.
 
-### Verificar security groups
+### Configurar DigitalOcean access token
 
-<details>
-<summary>Leer instrucciones</summary>
+Crear un [api token de DigitalOcean](https://cloud.digitalocean.com/account/api/tokens?i=641bf2) con una expiración de 1 año con todos los scopes de `app` y guardar el valor en el secret `DIGITALOCEAN_ACCESS_TOKEN`. Se puede llamar `Columnistos GitHub Actions Deploy` para diferenciarlo de otros proyectos.
 
-El security group de rds solamente debe de tener dos inbound rules
+`DOKS_CLUSTER_NAME` es el nombre del cluster, por ejemplo `columnistos-k8s`.
 
-- MySQL/Aurora del IP del local (se puede eliminar después de crear las tablas)
-- MySQL/Aurora del security group del lambda
-
-El security group de lambda solamente debe de tener dos outbound rules
-
-- MySQL/Aurora hacia el security group del rds
-- HTTPS hacia 0.0.0.0/0
-</details>
+`DOKS_REGION` es la región elegida para el cluster, por ejemplo `nyc1`.

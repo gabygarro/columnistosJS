@@ -1,0 +1,168 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crawl
+spec:
+  schedule: "55 13-23,00-05 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
+      template:
+        spec:
+          containers:
+            - name: crawl
+              image: ghcr.io/__GH_OWNER__/crawl:__VERSION__
+              imagePullPolicy: IfNotPresent
+              imagePullSecrets:
+                - name: ghcr-secret
+              env:
+                - name: WAFRN_EMAIL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: WAFRN_EMAIL
+                - name: WAFRN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: WAFRN_PASSWORD
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_HOST
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_USER
+                - name: DB_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: DB_PWD
+                - name: CRAWLER_DIR
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: CRAWLER_DIR
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 200Mi
+                requests:
+                  cpu: 50m
+                  memory: 100Mi
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: post
+spec:
+  schedule: "00 16-23 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
+      template:
+        spec:
+          containers:
+            - name: post
+              image: ghcr.io/__GH_OWNER__/post:__VERSION__
+              imagePullPolicy: IfNotPresent
+              imagePullSecrets:
+                - name: ghcr-secret
+              env:
+                - name: WAFRN_EMAIL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: WAFRN_EMAIL
+                - name: WAFRN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: WAFRN_PASSWORD
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_HOST
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_USER
+                - name: DB_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: DB_PWD
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 200Mi
+                requests:
+                  cpu: 50m
+                  memory: 100Mi
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: send-dms
+spec:
+  schedule: "20,30,40 13-23,00-05 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
+      template:
+        spec:
+          containers:
+            - name: send-dms
+              image: ghcr.io/__GH_OWNER__/send-dms:__VERSION__
+              imagePullPolicy: IfNotPresent
+              imagePullSecrets:
+                - name: ghcr-secret
+              env:
+                - name: WAFRN_EMAIL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: WAFRN_EMAIL
+                - name: WAFRN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: WAFRN_PASSWORD
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_HOST
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: DB_USER
+                - name: DB_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: columnistos-secret
+                      key: DB_PWD
+                - name: ADMIN_HANDLES
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: ADMIN_HANDLES
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 200Mi
+                requests:
+                  cpu: 50m
+                  memory: 100Mi
+          restartPolicy: OnFailure
