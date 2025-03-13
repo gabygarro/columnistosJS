@@ -119,3 +119,7 @@ Crear un [api token de DigitalOcean](https://cloud.digitalocean.com/account/api/
 `DOKS_CLUSTER_NAME` es el nombre del cluster, por ejemplo `columnistos-k8s`.
 
 `DOKS_REGION` es la región elegida para el cluster, por ejemplo `nyc1`.
+
+### Permitir que GithubActions haga tags
+
+En los Settings del repo > Actions > General, habilitar el checkbox "Allow GitHub Actions to create and approve pull requests".
