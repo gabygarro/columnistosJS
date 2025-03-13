@@ -122,7 +122,7 @@ jobs:
       - name: Configure Kubeconfig
         run: |
           doctl kubernetes cluster kubeconfig save ${{ env.DOKS_CLUSTER_NAME }}
-          kubectl config use-context do-${{ env.DOKS_CLUSTER_NAME }}
+          kubectl config use-context do-${{ env.DOKS_REGION }}-${{ env.DOKS_CLUSTER_NAME }}
       - name: Create ConfigMap and Secret
         run: |
           # Base64 encode secrets
