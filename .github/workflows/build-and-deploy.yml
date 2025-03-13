@@ -71,6 +71,7 @@ jobs:
             });
 
   build-publish:
+    needs: [tag]
     runs-on: ubuntu-latest
     strategy:
       matrix:
