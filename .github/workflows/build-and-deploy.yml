@@ -86,7 +86,7 @@ jobs:
             NODE_ENV=production
 
   deploy:
-    needs: [semantic-release, build-publish]
+    needs: [build-publish]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
