@@ -32,12 +32,13 @@ permissions:
   packages: write
 
 jobs:
-  build-publish:
+  tag:
     if: "!contains(github.event.head_commit.message, '[no ci]')"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: ["crawl", "post", "send-dms"]
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +47,7 @@ jobs:
       - name: Get latest tag
         id: get_version
         run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "Current version: $LATEST_TAG"
           # Split into major.minor.patch
           MAJOR=$(echo $LATEST_TAG | cut -d'.' -f1)
@@ -56,6 +57,7 @@ jobs:
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
       - name: Create new tag
         uses: actions/github-script@v6
         with:
@@ -67,6 +69,18 @@ jobs:
               ref: `refs/tags/${version}`,
               sha: context.sha
             });
+
+  build-publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ["crawl", "post", "send-dms"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Version
+        id: version
+        run: echo "version=$(git describe --tags `git rev-list --tags --max-count=1`) >> $GITHUB_OUTPUT
       - name: Docker Login
         uses: docker/login-action@v3.3.0
         with:
