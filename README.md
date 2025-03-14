@@ -114,7 +114,7 @@ Crear un [personal access token](https://github.com/settings/tokens/new) con una
 
 ### Configurar DigitalOcean access token
 
-Crear un [api token de DigitalOcean](https://cloud.digitalocean.com/account/api/tokens?i=641bf2) con una expiración de 1 año con todos los scopes de `app` y guardar el valor en el secret `DIGITALOCEAN_ACCESS_TOKEN`. Se puede llamar `Columnistos GitHub Actions Deploy` para diferenciarlo de otros proyectos.
+Crear un [api token de DigitalOcean](https://cloud.digitalocean.com/account/api/tokens?i=641bf2) con una expiración de 1 año con todos los scopes de `app` y guardar el valor en el secret `DIGITALOCEAN_ACCESS_TOKEN`. Se puede llamar `Columnistos GitHub Actions Deploy` para diferenciarlo de otros proyectos. Guarda el access token para poder acceder al dashboard desde local.
 
 `DOKS_CLUSTER_NAME` es el nombre del cluster, por ejemplo `columnistos-k8s`.
 
@@ -123,3 +123,33 @@ Crear un [api token de DigitalOcean](https://cloud.digitalocean.com/account/api/
 ### Permitir que GithubActions haga tags
 
 En los Settings del repo > Actions > General, habilitar el checkbox "Allow GitHub Actions to create and approve pull requests".
+
+### Conectarse al dashboard de k8s desde local
+
+```bash
+doctl auth init --context columnistos-k8s # Necesita el token
+doctl kubernetes cluster kubeconfig save [certificado-del-cluster] --context columnistos-k8s
+kubectl config use-context do-nyc1-columnistos-k8s
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+kubectl apply -f dashboard-admin.yaml
+kubectl -n kubernetes-dashboard create token admin-user # Copiar el token para iniciar sesión en el dashboard.
+kubectl proxy
+```
+
+El dashboard [se puede acceder aquí](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
+
+### Provisionar base de datos
+
+Si se usa una base de datos de AWS (MariaDB), se puede agregar al VPC default y dejar que genere un security group por defecto. En el security group que se va a crear por defecto, hay que agregar un inboud rule de MySQL/Aurora para nuestro IP local y otra regla para el IP del k8s de DigitalOcean.
+
+`DB_HOST` es el endpoint de la base de datos, por ejemplo: `columnistosjs-db.[id].us-east-1.rds.amazonaws.com`.
+
+### Obtener el IP del nodepool de k8s
+
+Después de correr las configuraciones necesarias para acceder al dashboard, se puede usar este comando para obtener los nodes.
+
+```bash
+kubectl get nodes -o wide
+```
+
+Por cada uno de los node pools, su IP externo está en la columna "EXTERNAL-IP". Se puede ingresar en el security group de la base de datos como un inbound rule MySQL/Aurora para `[EXTERNAL-IP]/32`.

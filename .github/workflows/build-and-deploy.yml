@@ -143,8 +143,8 @@ jobs:
       - name: Create ConfigMap and Secret
         run: |
           # Base64 encode secrets
-          DB_PWD_B64=$(echo -n "${{ env.DB_PWD }}" | base64 -w0)
-          WAFRN_PASSWORD_B64=$(echo -n "${{ env.WAFRN_PASSWORD }}" | base64 -w0)
+          DB_PWD_B64=$(printf '%s' "${{ env.DB_PWD }}" | base64 -w0)
+          WAFRN_PASSWORD_B64=$(printf '%s' "${{ env.WAFRN_PASSWORD }}" | base64 -w0)
           # Create config.yaml with actual values
           cat <<EOF | kubectl apply -f -
           apiVersion: v1
