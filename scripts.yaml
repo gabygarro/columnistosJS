@@ -10,12 +10,12 @@ spec:
       ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
       template:
         spec:
+          imagePullSecrets:
+            - name: ghcr-secret
           containers:
             - name: crawl
               image: ghcr.io/__GH_OWNER__/crawl:__VERSION__
               imagePullPolicy: IfNotPresent
-              imagePullSecrets:
-                - name: ghcr-secret
               env:
                 - name: WAFRN_EMAIL
                   valueFrom:
@@ -68,12 +68,12 @@ spec:
       ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
       template:
         spec:
+          imagePullSecrets:
+            - name: ghcr-secret
           containers:
             - name: post
               image: ghcr.io/__GH_OWNER__/post:__VERSION__
               imagePullPolicy: IfNotPresent
-              imagePullSecrets:
-                - name: ghcr-secret
               env:
                 - name: WAFRN_EMAIL
                   valueFrom:
@@ -121,12 +121,12 @@ spec:
       ttlSecondsAfterFinished: 86400 # Retener pod por 1 día
       template:
         spec:
+          imagePullSecrets:
+            - name: ghcr-secret
           containers:
             - name: send-dms
               image: ghcr.io/__GH_OWNER__/send-dms:__VERSION__
               imagePullPolicy: IfNotPresent
-              imagePullSecrets:
-                - name: ghcr-secret
               env:
                 - name: WAFRN_EMAIL
                   valueFrom:
