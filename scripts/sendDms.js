@@ -103,7 +103,7 @@ export async function handler() {
       await processDm(conn, token, dm);
     }
     // Send dms
-    await sendDms(conn);
+    await sendDms(conn, token);
     dbEnd(conn);
   } catch (error) {
     console.log(error);
