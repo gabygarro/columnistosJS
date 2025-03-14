@@ -79,7 +79,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const version = "${{ steps.get_version.outputs.new_version }}";
+            const version = "${{ steps.increment_version.outputs.new_version }}";
             await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
