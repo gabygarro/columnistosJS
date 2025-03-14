@@ -47,6 +47,11 @@ spec:
                     configMapKeyRef:
                       name: columnistos-config
                       key: CRAWLER_DIR
+                - name: ADMIN_HANDLES
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: ADMIN_HANDLES
               resources:
                 limits:
                   cpu: 100m
@@ -100,6 +105,11 @@ spec:
                     secretKeyRef:
                       name: columnistos-secret
                       key: DB_PWD
+                - name: ADMIN_HANDLES
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: ADMIN_HANDLES
               resources:
                 limits:
                   cpu: 100m
