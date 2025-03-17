@@ -151,6 +151,7 @@ jobs:
           kind: ConfigMap
           metadata:
             name: columnistos-config
+            namespace: columnistos
           data:
             WAFRN_EMAIL: "${{ env.WAFRN_EMAIL }}"
             DB_HOST: "${{ env.DB_HOST }}"
@@ -162,6 +163,7 @@ jobs:
           kind: Secret
           metadata:
             name: columnistos-secret
+            namespace: columnistos
           type: Opaque
           data:
             DB_PWD: "$DB_PWD_B64"
@@ -170,21 +172,22 @@ jobs:
       - name: Create Registry Secret
         run: |
           kubectl create secret docker-registry ghcr-secret \
+            --namespace=columnistos \
             --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
             --docker-password=${{ env.GH_TOKEN }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --dry-run=client -o yaml | kubectl apply -n columnistos -f -
       - name: Apply and Update Manifests
         run: |
           # Replace placeholders in YAML
-          sed -i "s/__GH_OWNER__/${{ github.repository_owner }}/g" scripts.yaml
-          sed -i "s/__VERSION__/${{ steps.version.outputs.version }}/g" scripts.yaml
+          sed -i "s/__GH_OWNER__/${{ github.repository_owner }}/g" k8s/scripts.yaml
+          sed -i "s/__VERSION__/${{ steps.version.outputs.version }}/g" k8s/scripts.yaml
           # Apply manifests
-          kubectl apply -f scripts.yaml
+          kubectl apply -n columnistos -f k8s/scripts.yaml
       - name: Update Deployment
         run: |
           for service in crawl post send-dms; do
-            kubectl set image cronjob/$service \
+            kubectl set image cronjob/$service -n columnistos \
               $service=ghcr.io/${{ github.repository_owner }}/$service:${{ steps.version.outputs.version }} \
               --record
           done
