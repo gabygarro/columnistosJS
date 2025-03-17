@@ -62,7 +62,7 @@ docker build -t post:latest -f post.Dockerfile .
 docker build -t send-dms:latest -f sendDms.Dockerfile .
 kubectl create secret generic columnistos-secret --from-env-file=.env
 kubectl create configmap columnistos-config --from-env-file=.env
-kubectl apply -f scripts.yaml
+kubectl apply -f k8s/scripts.yaml
 ```
 
 ### Desarrollo
@@ -131,7 +131,7 @@ doctl auth init --context columnistos-k8s # Necesita el token
 doctl kubernetes cluster kubeconfig save [certificado-del-cluster] --context columnistos-k8s
 kubectl config use-context do-nyc1-columnistos-k8s
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-kubectl apply -f dashboard-admin.yaml
+kubectl apply -f k8s/dashboard-admin.yaml
 kubectl -n kubernetes-dashboard create token admin-user # Copiar el token para iniciar sesión en el dashboard.
 kubectl proxy
 ```
