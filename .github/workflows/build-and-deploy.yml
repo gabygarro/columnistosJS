@@ -115,8 +115,8 @@ jobs:
           file: ${{ matrix.service }}.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ matrix.service }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ matrix.service }}:latest
           build-args: |
             NODE_ENV=production
 
@@ -181,6 +181,7 @@ jobs:
         run: |
           # Replace placeholders in YAML
           sed -i "s/__GH_OWNER__/${{ github.repository_owner }}/g" k8s/scripts.yaml
+          sed -i "s/__GH_REPO__/${{ github.event.repository.name }}/g" k8s/scripts.yaml
           sed -i "s/__VERSION__/${{ steps.version.outputs.version }}/g" k8s/scripts.yaml
           # Apply manifests
           kubectl apply -n columnistos -f k8s/scripts.yaml
@@ -188,6 +189,6 @@ jobs:
         run: |
           for service in crawl post send-dms; do
             kubectl set image cronjob/$service -n columnistos \
-              $service=ghcr.io/${{ github.repository_owner }}/$service:${{ steps.version.outputs.version }} \
+              $service=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/$service:${{ steps.version.outputs.version }} \
               --record
           done
