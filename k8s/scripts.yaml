@@ -20,7 +20,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: crawl
-              image: ghcr.io/__GH_OWNER__/crawl:__VERSION__
+              image: ghcr.io/__GH_OWNER__/__GH_REPO__/crawl:__VERSION__
               imagePullPolicy: IfNotPresent
               env:
                 - name: WAFRN_EMAIL
@@ -84,7 +84,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: post
-              image: ghcr.io/__GH_OWNER__/post:__VERSION__
+              image: ghcr.io/__GH_OWNER__/__GH_REPO__/post:__VERSION__
               imagePullPolicy: IfNotPresent
               env:
                 - name: WAFRN_EMAIL
@@ -143,7 +143,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: send-dms
-              image: ghcr.io/__GH_OWNER__/send-dms:__VERSION__
+              image: ghcr.io/__GH_OWNER__/__GH_REPO__/send-dms:__VERSION__
               imagePullPolicy: IfNotPresent
               env:
                 - name: WAFRN_EMAIL
