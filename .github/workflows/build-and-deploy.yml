@@ -12,8 +12,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: "20.18.2"
-  AWS_REGION: us-east-1
   WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
   DB_HOST: ${{ vars.DB_HOST }}
   DB_USER: ${{ vars.DB_USER }}

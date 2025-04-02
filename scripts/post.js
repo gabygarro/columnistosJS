@@ -78,9 +78,17 @@ export async function handler() {
       return;
     }
     const [pendingAuthor] = await conn.query(`
-      SELECT id, name FROM columnistos.author
-        WHERE gender IS NULL
-        LIMIT 1`
+      SELECT a.id
+      FROM columnistos.author a
+      WHERE a.gender IS NULL
+        AND EXISTS (
+          SELECT 1
+          FROM columnistos.article ar
+          WHERE ar.author_id = a.id
+            AND ar.date_added >= (UTC_DATE() - INTERVAL 1 DAY + INTERVAL 6 HOUR)
+            AND ar.date_added < (UTC_DATE() + INTERVAL 6 HOUR)
+        )
+      LIMIT 1`
     );
     if (pendingAuthor) {
       const token = await login();

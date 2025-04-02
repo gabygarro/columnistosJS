@@ -83,7 +83,7 @@ minikube stop
 
 ## Deployment a DigitalOcean
 
-Cada vez que hay commit nuevo en `main` que no contiene la palabra `[no ci]`, corre un workflow que hace deploy a un Kubernetes de DigitalOcean.
+Cada vez que hay un commit nuevo en `main` que no contiene la palabra `[no ci]`, corre un workflow que hace deploy a un Kubernetes de DigitalOcean.
 
 ### Configurar variables en el repositorio
 
