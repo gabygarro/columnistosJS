@@ -1,6 +1,6 @@
 import 'dotenv/config';
+import { login, sendWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { login, sendWoot } from '../wafrn/index.js';
 import { NO_WOMAN, ONE_WOMAN, ONE_MAN, SOME_WOMAN, ALL_WOMAN, ONE_WOMAN_COAUTHOR, DAILY_REPORT } from '../utils/templateTexts.js';
 import { getYesterdaysDate } from '../utils/date.js';
 import { sendDms } from './sendDms.js';

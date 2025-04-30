@@ -1,6 +1,6 @@
 import 'dotenv/config';
+import { getDms, login, sendPrivateWoot, sendPrivateReplyWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { getDms, login, sendPrivateWoot, sendPrivateReplyWoot } from '../wafrn/index.js';
 
 let adminHandlesString;
 
