@@ -153,3 +153,26 @@ kubectl get nodes -o wide
 ```
 
 Por cada uno de los node pools, su IP externo está en la columna "EXTERNAL-IP". Se puede ingresar en el security group de la base de datos como un inbound rule MySQL/Aurora para `[EXTERNAL-IP]/32`.
+
+## Red neuronal
+
+### Requirimientos
+
+1. Instalar `uv` con homebrew
+2. Instalar python
+
+```bash
+uv python install 3.12
+```
+
+3. Instalar dependencias
+
+```bash
+uv sync
+```
+
+4. Para correr
+
+```bash
+uv run main.py
+```
