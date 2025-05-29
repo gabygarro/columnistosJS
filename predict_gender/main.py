@@ -56,7 +56,7 @@ def train_model(men_path, women_path):
     
     # Compile with MSE loss and custom learning rate
     model.compile(
-        optimizer=tf.keras.optimizers.SGD(learning_rate=0.01),
+        optimizer=tf.keras.optimizers.SGD(learning_rate=0.02),
         loss='mse',
         metrics=['accuracy']
     )
