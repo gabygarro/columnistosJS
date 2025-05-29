@@ -92,7 +92,13 @@ if __name__ == "__main__":
     model.save("gender_classifier.keras")
     
     # Test predictions
-    test_names = ["Gabriela Garro", "Juan José Vásquez", "Fernando Herrera", "Shirley Alfaro"]
+    test_names = [
+        "Gabriela Garro",
+        "Juan Jose Vásquez",
+        "Fernando Herrera",
+        "Shirley Alfaro",
+        "Ricardo Apú Chinchilla",
+        "Maria Estrada"]
     for name in test_names:
         result = predict_gender(model, name)
         print(f"{result['name']}: {result['gender']} (Confidence: {result['confidence']:.2%})")
