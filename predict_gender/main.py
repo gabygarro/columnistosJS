@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from sklearn.model_selection import train_test_split
 import pandas as pd
 import csv
 import random
@@ -49,25 +51,40 @@ def train_model(men_path, women_path):
     
     # Model configuration
     model = Sequential([
-        Dense(15, activation='relu', input_shape=(15,)),
-        Dense(12, activation='relu'),
+        Dense(128, activation='relu', input_shape=(15,)),
+        Dropout(0.3),  # Regularization
+        Dense(64, activation='relu'),
+        Dense(32, activation='relu'),
         Dense(2, activation='softmax')
     ])
     
     # Compile with MSE loss and custom learning rate
     model.compile(
-        optimizer=tf.keras.optimizers.SGD(learning_rate=0.02),
-        loss='mse',
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss='categorical_crossentropy',  # Better for classification
         metrics=['accuracy']
     )
 
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+    callbacks = [
+        tf.keras.callbacks.EarlyStopping(patience=15, restore_best_weights=True),
+        tf.keras.callbacks.ReduceLROnPlateau(factor=0.2, patience=5)
+    ]
+
     model.fit(
-        X,
-        tf.keras.utils.to_categorical(y),
-        batch_size=15,
-        epochs=400,
+        X_train,
+        tf.keras.utils.to_categorical(y_train),
+        validation_data=(X_val, tf.keras.utils.to_categorical(y_val)),
+        epochs=200,
+        batch_size=32,
+        callbacks=callbacks,
         verbose=1
     )
+
+    test_loss, test_acc = model.evaluate(X_test, tf.keras.utils.to_categorical(y_test))
+    print(f"\nFinal Test Accuracy: {test_acc:.2%}")
 
     return model
 
@@ -94,10 +111,10 @@ if __name__ == "__main__":
     # Test predictions
     test_names = [
         "Gabriela Garro",
-        "Juan Jose Vásquez",
+        "Juan Jose Vasquez",
         "Fernando Herrera",
         "Shirley Alfaro",
-        "Ricardo Apú Chinchilla",
+        "Ricardo Apu Chinchilla",
         "Maria Estrada"]
     for name in test_names:
         result = predict_gender(model, name)
