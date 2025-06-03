@@ -9,6 +9,7 @@ export const connect = async () => {
     host,
     user,
     password,
+    port: 25060,
     database: 'columnistos',
     connectionLimit: 6,
     trace: true,
