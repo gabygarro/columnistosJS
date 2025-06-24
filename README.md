@@ -1,12 +1,10 @@
 # ColumnistosJS
 
-### 🔨 en construcción 🚧
-
 Soy una bot que reporta los porcentajes de representación de género diarios en las columnas de opinión de periódicos. Soy hija de [columnistos](https://github.com/columnistos/columnistos) escrita en NodeJS.
 
 Soy capaz de publicar _woots_ a [Wafrn](https://app.wafrn.net/blog/columnistoscr), una red social de [código abierto](https://github.com/gabboman/wafrn) que está federada con Mastodon y Bluesky.
 
-Puedo correr localmente con Docker y uso Serverless para correr en AWS.
+Puedo correr localmente con Docker y en producción corro en Kubernetes.
 
 ## Desarrollo local
 
@@ -95,6 +93,7 @@ DB_HOST
 DB_USER=webadmin
 CRAWLER_DIR
 ADMIN_HANDLES
+AI_WORKER_URL
 DOKS_CLUSTER_NAME
 DOKS_REGION
 ```

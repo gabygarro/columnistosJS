@@ -17,6 +17,7 @@ env:
   DB_USER: ${{ vars.DB_USER }}
   CRAWLER_DIR: ${{ vars.CRAWLER_DIR }}
   ADMIN_HANDLES: ${{ vars.ADMIN_HANDLES }}
+  AI_WORKER_URL: ${{ vars.AI_WORKER_URL }}
   DOKS_CLUSTER_NAME: ${{ vars.DOKS_CLUSTER_NAME }}
   DOKS_REGION: ${{ vars.DOKS_REGION }}
   WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
@@ -156,6 +157,7 @@ jobs:
             DB_USER: "${{ env.DB_USER }}"
             CRAWLER_DIR: "${{ env.CRAWLER_DIR }}"
             ADMIN_HANDLES: "${{ env.ADMIN_HANDLES }}"
+            AI_WORKER_URL: "${{ env.AI_WORKER_URL }}"
           ---
           apiVersion: v1
           kind: Secret

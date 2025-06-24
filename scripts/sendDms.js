@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { getDms, login, sendPrivateWoot, sendPrivateReplyWoot } from 'wafrn-sdk';
+import axios from 'axios';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 
 let adminHandlesString;
@@ -49,11 +50,12 @@ const processDm = async (conn, token, dm) => {
 
 export const sendDms = async (conn, token, ignoreDmSent = false) => {
   const adminHandles = process.env.ADMIN_HANDLES;
+  const aiWorkerUrl = process.env.AI_WORKER_URL;
   if (!adminHandles) {
     throw new Error("Missing admin handles");
   }
-  const adminHandleList = adminHandles.split(',')
-  adminHandlesString = adminHandleList.map(handle => `@${handle}`).join(' ')
+  const adminHandleList = adminHandles.split(',');
+  adminHandlesString = adminHandleList.map(handle => `@${handle}`).join(' ');
   const authors = await conn.query(`
     SELECT id, name FROM columnistos.author
       WHERE gender IS NULL ${ignoreDmSent === false ? 'AND dm_sent = 0' : ''}
@@ -65,10 +67,32 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
   }
   for (const author of authors) {
     const { id, name } = author;
+    let llmResponse;
+    let chooseLlmResponse;
+    let llmError;
+    try {
+      const response = await axios.post(aiWorkerUrl, {
+        name
+      });
+      llmResponse = response.data;
+      const { gender, confidence } = llmResponse;
+      chooseLlmResponse = (gender === 'M' || gender === 'F') && confidence >= 0.95;
+      if (chooseLlmResponse) {
+        await conn.query('UPDATE columnistos.author SET gender = ? WHERE id = ?',
+          [gender, id]
+        );
+      }
+    } catch (error) {
+      llmError = error;
+    }
+    const genderResponse = llmResponse?.gender || '?';
+    const percentageResponse = (llmResponse?.confidence || 0) * 100
     await sendPrivateWoot(`
       ${adminHandlesString}
-      Nuevo autor:
-      ${id} ${name}
+      Nuevo autor: ${id} ${name}
+      Predicción: ${genderResponse} Confianza: ${percentageResponse}%
+      La predicción fue guardada: ${chooseLlmResponse === true ? 'Sí' : 'No' }${llmError ? `
+      Error: ${llmError}` : ''}
       Buscar: https://duckduckgo.com/?q=${encodeURI(name)}&iax=images&ia=images
       Responde si es hombre: ${id} M
       Si es mujer: ${id} F
@@ -76,6 +100,8 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
       Si es un grupo de co autores con al menos una mujer: ${id} CF
       Si es editorial o una organización: ${id} X`, { token });
     console.log(`Requested gender for author ${id} ${name}`);
+    if (chooseLlmResponse) console.log(`  Saved author gender ${genderResponse} with ${percentageResponse}% confidence`);
+    else console.log(`  Did not save author gender ${genderResponse} with ${percentageResponse}% confidence`);
     await conn.query('UPDATE columnistos.author SET dm_sent = 1 WHERE id = ?', [id]);
   }
 };

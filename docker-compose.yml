@@ -36,6 +36,7 @@ services:
       WAFRN_PASSWORD: ${WAFRN_PASSWORD}
       DB_PWD: ${DB_PWD}
       ADMIN_HANDLES: ${ADMIN_HANDLES}
+      AI_WORKER_URL: ${AI_WORKER_URL}
   db:
     image: mariadb:latest
     container_name: columnistos-mariadb
