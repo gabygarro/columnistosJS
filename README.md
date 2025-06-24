@@ -96,6 +96,7 @@ ADMIN_HANDLES
 AI_WORKER_URL
 DOKS_CLUSTER_NAME
 DOKS_REGION
+CLOUDFLARE_ACCOUNT_ID
 ```
 
 Configurar los siguientes secretos en GitHub
@@ -105,6 +106,7 @@ DB_PWD
 WAFRN_PASSWORD
 GH_TOKEN
 DIGITALOCEAN_ACCESS_TOKEN
+CLOUDFLARE_API_TOKEN
 ```
 
 ### Configurar Github token para semantic release
