@@ -58,6 +58,11 @@ spec:
                     configMapKeyRef:
                       name: columnistos-config
                       key: ADMIN_HANDLES
+                - name: AI_WORKER_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: AI_WORKER_URL
               resources:
                 limits:
                   cpu: 100m
@@ -117,6 +122,11 @@ spec:
                     configMapKeyRef:
                       name: columnistos-config
                       key: ADMIN_HANDLES
+                - name: AI_WORKER_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: AI_WORKER_URL
               resources:
                 limits:
                   cpu: 100m
@@ -176,6 +186,11 @@ spec:
                     configMapKeyRef:
                       name: columnistos-config
                       key: ADMIN_HANDLES
+                - name: AI_WORKER_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: columnistos-config
+                      key: AI_WORKER_URL
               resources:
                 limits:
                   cpu: 100m
