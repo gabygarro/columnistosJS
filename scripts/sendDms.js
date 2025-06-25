@@ -5,6 +5,15 @@ import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 
 let adminHandlesString;
 
+const getAdminHandles = () => {
+  const adminHandles = process.env.ADMIN_HANDLES;
+  if (!adminHandles) {
+    throw new Error("Missing admin handles");
+  }
+  const adminHandleList = adminHandles.split(',');
+  return adminHandleList.map(handle => `@${handle}`).join(' ');
+};
+
 const markDmAsProcessed = async (conn, dmId) => conn.query(
   'INSERT INTO columnistos.dm(dm_id) VALUES(?)',
   [dmId]
@@ -49,13 +58,8 @@ const processDm = async (conn, token, dm) => {
 };
 
 export const sendDms = async (conn, token, ignoreDmSent = false) => {
-  const adminHandles = process.env.ADMIN_HANDLES;
   const aiWorkerUrl = process.env.AI_WORKER_URL;
-  if (!adminHandles) {
-    throw new Error("Missing admin handles");
-  }
-  const adminHandleList = adminHandles.split(',');
-  adminHandlesString = adminHandleList.map(handle => `@${handle}`).join(' ');
+  adminHandlesString = getAdminHandles();
   const authors = await conn.query(`
     SELECT id, name FROM columnistos.author
       WHERE gender IS NULL ${ignoreDmSent === false ? 'AND dm_sent = 0' : ''}
@@ -104,6 +108,14 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
     else console.log(`  Did not save author gender ${genderResponse} with ${percentageResponse}% confidence`);
     await conn.query('UPDATE columnistos.author SET dm_sent = 1 WHERE id = ?', [id]);
   }
+};
+
+export const sendPrivateWootToAdmins = async (token, text) => {
+  adminHandlesString = getAdminHandles();
+  await sendPrivateWoot(`
+    ${adminHandlesString}
+    ${text}
+  `, { token });
 };
 
 export async function handler() {
