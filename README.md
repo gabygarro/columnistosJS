@@ -154,3 +154,13 @@ kubectl get nodes -o wide
 ```
 
 Por cada uno de los node pools, su IP externo está en la columna "EXTERNAL-IP". Se puede ingresar en el security group de la base de datos como un inbound rule MySQL/Aurora para `[EXTERNAL-IP]/32`.
+
+### Generar un nuevo tag
+
+El workflow de build and deploy automáticamente crea un nuevo tag cuando hay cambios nuevos, incrementando en un 1
+el último número o el patch number. Si se desea cambiar el número minor o major, se puede correr
+
+```bash
+git tag 1.1.0
+git push origin --tags
+```
