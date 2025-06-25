@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { login, sendWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { NO_WOMAN, ONE_WOMAN, ONE_MAN, SOME_WOMAN, ALL_WOMAN, ONE_WOMAN_COAUTHOR, DAILY_REPORT } from '../utils/templateTexts.js';
+import { NO_WOMAN, ONE_WOMAN, ONE_MAN, SOME_WOMAN, ALL_WOMAN, ONE_WOMAN_COAUTHOR, DAILY_REPORT, NO_WOMAN_SINGULAR } from '../utils/templateTexts.js';
 import { getYesterdaysDate } from '../utils/date.js';
 import { sendDms } from './sendDms.js';
 
@@ -44,10 +44,15 @@ const MIN_PERCENT_SOME = 45;
 const selectText = (female_count, total_authors, percentOfWomen) => {
   const randomIndex = getRandomInt(2);
   if (percentOfWomen === 0) {
+    if (total_authors === 1 && randomIndex === 1) {
+      return NO_WOMAN_SINGULAR;
+    }
     return NO_WOMAN[randomIndex];
-  } else if (female_count === 1) {
+  } else if (female_count === 1 && percentOfWomen < MIN_PERCENT_SOME) {
     return ONE_WOMAN[randomIndex];
-  } else if (female_count === total_authors - 1) {
+  } else if (female_count === total_authors - 1 &&
+    (1 / total_authors * 100) < MIN_PERCENT_SOME
+  ) {
     return ONE_MAN[randomIndex];
   } else if (percentOfWomen > MIN_PERCENT_SOME) {
     return SOME_WOMAN[randomIndex];

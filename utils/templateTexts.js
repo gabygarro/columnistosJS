@@ -2,6 +2,7 @@ export const NO_WOMAN = [
   `Ayer {fecha} en {medio} no hubo ninguna columna de opinión escrita por mujeres.`,
   `Las {total} columnas de opinión de {medio} en el día de ayer {fecha} fueron escritas por varones.`
 ];
+export const NO_WOMAN_SINGULAR = `La única columna de opinión de {medio} en el día de ayer {fecha} fue escrita por un varón.`;
 export const ONE_WOMAN = [
   `De las {total} columnas de opinión que publicaron ayer {fecha} en {medio}, solo una fue escrita por una mujer.`,
   `En {medio} ayer {fecha} publicaron {total} columnas de opinión y solo una fue escrita por una mujer.`
