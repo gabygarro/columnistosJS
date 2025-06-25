@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "predictGender/index.js"
+      - "predictGender/"
 
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
