@@ -79,8 +79,8 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
         name
       });
       llmResponse = response.data;
-      const { gender, confidence } = llmResponse;
-      chooseLlmResponse = (gender === 'M' || gender === 'F') && confidence >= 0.95;
+      const { gender } = llmResponse;
+      chooseLlmResponse = (gender === 'M' || gender === 'F');
       if (chooseLlmResponse) {
         await conn.query('UPDATE columnistos.author SET gender = ? WHERE id = ?',
           [gender, id]
@@ -90,11 +90,10 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
       llmError = error;
     }
     const genderResponse = llmResponse?.gender || '?';
-    const percentageResponse = (llmResponse?.confidence || 0) * 100
     await sendPrivateWoot(`
       ${adminHandlesString}
       Nuevo autor: ${id} ${name}
-      Predicción: ${genderResponse} Confianza: ${percentageResponse}%
+      Predicción: ${genderResponse}
       La predicción fue guardada: ${chooseLlmResponse === true ? 'Sí' : 'No' }${llmError ? `
       Error: ${llmError}` : ''}
       Buscar: https://duckduckgo.com/?q=${encodeURI(name)}&iax=images&ia=images
@@ -104,8 +103,8 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
       Si es un grupo de co autores con al menos una mujer: ${id} CF
       Si es editorial o una organización: ${id} X`, { token });
     console.log(`Requested gender for author ${id} ${name}`);
-    if (chooseLlmResponse) console.log(`  Saved author gender ${genderResponse} with ${percentageResponse}% confidence`);
-    else console.log(`  Did not save author gender ${genderResponse} with ${percentageResponse}% confidence`);
+    if (chooseLlmResponse) console.log(`  Saved author gender ${genderResponse}`);
+    else console.log(`  Did not save author gender ${genderResponse}`);
     await conn.query('UPDATE columnistos.author SET dm_sent = 1 WHERE id = ?', [id]);
   }
 };
