@@ -3,7 +3,7 @@ USE columnistos;
 CREATE TABLE author
 (
   id INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(128) NOT NULL,
+  name VARCHAR(256) NOT NULL,
   -- M: Male
   -- F: Female
   -- NB: Non-binary
