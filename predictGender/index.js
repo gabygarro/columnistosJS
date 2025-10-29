@@ -1,5 +1,5 @@
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     // Handle CORS for browser requests
     if (request.method === 'OPTIONS') {
       return new Response(null, {
@@ -26,19 +26,25 @@ export default {
       }
 
       // Use env.AI directly - no import needed in dashboard editor
-      const systemPrompt = `You are a helpful assistant that always responds with valid JSON. 
-      Follow this exact schema: { "gender": "string (M|F|CF|X|NB)", "confidence": "number (decimal between 0 and 1)" }
+      const systemPrompt = `You are a helpful assistant that always responds with valid JSON.
+      Follow this exact schema: { "gender": "string (M|F|CF|X|NB)" }
       
       Rules:
       - Always return valid JSON
       - Follow the provided schema exactly
       - Do not include any text outside the JSON object
       - Ensure all required fields are present
-      - Consider Latin American and Spanish naming conventions when analyzing names`;
+      - Consider Latin American and Spanish naming conventions when analyzing names
+      - Use 'M' if it is a male name.
+      - Use 'F' if it is a female name.
+      - Use 'CF' if it is a list of names in spanish, either comma separated or separated by 'y' and at least one of the names is female.
+      - Use 'F' if it is a list of names in spanish and all of them are female names.
+      - Use 'NB' if it is a traditionally non binary name or you know this person is non binary.
+      - Use 'X' if it is an organization or entity that is not a person and has no gender.`;
 
-      const userPrompt = `JSON with the format { gender: 'M'|'F'|'CF'|'X'|'NB', confidence: number } where gender is the probable gender of a person with the name "${name}" and confidence is the decimal percentage of gender certainty. 'M' is for male, 'F' for female, 'CF' for a list of people where at least one is female, 'NB' for non-binary person, and 'X' for an organization or entity that is not a person and has no gender. Consider Latin American naming conventions.`;
+      const userPrompt = `JSON with the format { gender: 'M'|'F'|'CF'|'X'|'NB' } where gender is the probable gender of a person with the name "${name}".`;
 
-      const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      const response = await env.AI.run('@cf/meta/llama-4-scout-17b-16e-instruct', {
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -69,7 +75,7 @@ export default {
       }
 
       // Validate the response structure
-      if (!jsonResponse.gender || typeof jsonResponse.confidence !== 'number') {
+      if (!jsonResponse.gender) {
         return new Response(JSON.stringify({ 
           error: 'Invalid response structure',
           received: jsonResponse 
