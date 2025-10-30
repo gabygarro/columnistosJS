@@ -89,6 +89,9 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
     } catch (error) {
       llmError = error;
     }
+    const [lastArticleUrl] = await conn.query(`
+      SELECT url FROM article WHERE author_id = ? ORDER BY id DESC LIMIT 1
+    `, [id]);
     const genderResponse = llmResponse?.gender || '?';
     await sendPrivateWoot(`
       ${adminHandlesString}
@@ -97,6 +100,7 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
       La predicción fue guardada: ${chooseLlmResponse === true ? 'Sí' : 'No' }${llmError ? `
       Error: ${llmError}` : ''}
       Buscar: https://duckduckgo.com/?q=${encodeURI(name)}&iax=images&ia=images
+      Artículo: ${lastArticleUrl}
       Responde si es hombre: ${id} M
       Si es mujer: ${id} F
       Si es no binarie: ${id} NB
