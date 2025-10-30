@@ -17,7 +17,7 @@ export default {
 
     try {
       const { name } = await request.json();
-      
+
       if (!name) {
         return new Response(JSON.stringify({ error: 'Name is required' }), {
           status: 400,
@@ -28,7 +28,7 @@ export default {
       // Use env.AI directly - no import needed in dashboard editor
       const systemPrompt = `You are a helpful assistant that always responds with valid JSON.
       Follow this exact schema: { "gender": "string (M|F|CF|X|NB)" }
-      
+
       Rules:
       - Always return valid JSON
       - Follow the provided schema exactly
@@ -62,12 +62,12 @@ export default {
       } catch (parseError) {
         // If parsing fails, return a default response
         console.error('JSON parsing failed:', parseError);
-        return new Response(JSON.stringify({ 
+        return new Response(JSON.stringify({
           error: 'Invalid JSON response from AI model',
           raw_response: response.response 
         }), {
           status: 500,
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           }
@@ -76,12 +76,12 @@ export default {
 
       // Validate the response structure
       if (!jsonResponse.gender) {
-        return new Response(JSON.stringify({ 
+        return new Response(JSON.stringify({
           error: 'Invalid response structure',
-          received: jsonResponse 
+          received: jsonResponse
         }), {
           status: 500,
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           }
@@ -89,7 +89,7 @@ export default {
       }
 
       return new Response(JSON.stringify(jsonResponse), {
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         }
@@ -97,12 +97,12 @@ export default {
 
     } catch (error) {
       console.error('Worker error:', error);
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         error: 'Internal server error',
         message: error.message 
       }), {
         status: 500,
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         }
