@@ -52,6 +52,7 @@ export default {
         max_tokens: 100,
         temperature: 0.1
       });
+      console.log('response', response);
 
       // Parse and validate the JSON response
       let jsonResponse;
