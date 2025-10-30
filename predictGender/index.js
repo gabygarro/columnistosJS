@@ -57,9 +57,13 @@ export default {
       // Parse and validate the JSON response
       let jsonResponse;
       try {
-        // Clean the response text (remove any markdown formatting)
-        const cleanedResponse = response.response.replace(/```json\n?|\n?```/g, '').trim();
-        jsonResponse = JSON.parse(cleanedResponse);
+        if (typeof response.response === 'object') {
+          jsonResponse = response.response;
+        } else {
+          // Clean the response text (remove any markdown formatting)
+          const cleanedResponse = response.response.replace(/```json\n?|\n?```/g, '').trim();
+          jsonResponse = JSON.parse(cleanedResponse);
+        }
       } catch (parseError) {
         // If parsing fails, return a default response
         console.error('JSON parsing failed:', parseError);
