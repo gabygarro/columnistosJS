@@ -92,6 +92,7 @@ export const sendDms = async (conn, token, ignoreDmSent = false) => {
     const [lastArticleUrl] = await conn.query(`
       SELECT url FROM article WHERE author_id = ? ORDER BY id DESC LIMIT 1
     `, [id]);
+    console.log('lastArticleUrl', lastArticleUrl);
     const genderResponse = llmResponse?.gender || '?';
     await sendPrivateWoot(`
       ${adminHandlesString}
