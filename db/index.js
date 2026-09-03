@@ -9,7 +9,7 @@ export const connect = async () => {
     host,
     user,
     password,
-    port: 25060,
+    port: parseInt(process.env.DB_PORT || '3306', 10),
     database: 'columnistos',
     connectionLimit: 6,
     trace: true,
