@@ -12,18 +12,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  WAFRN_EMAIL: ${{ vars.WAFRN_EMAIL }}
-  DB_HOST: ${{ vars.DB_HOST }}
-  DB_USER: ${{ vars.DB_USER }}
-  CRAWLER_DIR: ${{ vars.CRAWLER_DIR }}
-  ADMIN_HANDLES: ${{ vars.ADMIN_HANDLES }}
-  AI_WORKER_URL: ${{ vars.AI_WORKER_URL }}
-  DOKS_CLUSTER_NAME: ${{ vars.DOKS_CLUSTER_NAME }}
-  DOKS_REGION: ${{ vars.DOKS_REGION }}
-  WAFRN_PASSWORD: ${{ secrets.WAFRN_PASSWORD }}
-  DB_PWD: ${{ secrets.DB_PWD }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
 permissions:
   id-token: write
@@ -106,7 +95,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ env.GH_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and Push
         uses: docker/build-push-action@v6.5.0
         with:
