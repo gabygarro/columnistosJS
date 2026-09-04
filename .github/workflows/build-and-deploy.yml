@@ -126,7 +126,7 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             set -e
-            cd /root
+            cd /opt/wordpress-sites
             sed -i "s/^COLUMNISTOS_VERSION=.*/COLUMNISTOS_VERSION=${{ steps.version.outputs.version }}/" .env
             docker compose pull crawl post send-dms
             docker compose up -d crawl post send-dms ofelia
