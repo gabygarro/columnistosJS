@@ -128,6 +128,8 @@ jobs:
             set -e
             cd /opt/wordpress-sites
             sed -i "s/^COLUMNISTOS_VERSION=.*/COLUMNISTOS_VERSION=${{ steps.version.outputs.version }}/" .env
+            set -a && . ./.env && set +a
+            echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_OWNER" --password-stdin
             docker compose pull crawl post send-dms
             docker compose up -d crawl post send-dms ofelia
             docker image prune -f
