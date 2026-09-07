@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'dotenv/config';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { fetchUpdates, getBot, getChatId, sendMessage } from '../utils/telegram.js';
+import { fetchUpdates, getBot, sendMessage } from '../utils/telegram.js';
 
 const markDmAsProcessed = async (conn, dmId) => conn.query(
   'INSERT INTO columnistos.dm(dm_id) VALUES(?)',
@@ -119,23 +119,14 @@ export async function handler() {
   try {
     conn = await dbConnect();
     const bot = getBot();
-    const chatId = getChatId();
-    if (chatId === null) {
-      console.log(
-        '[sendDms] TELEGRAM_CHAT_ID not set. Running in discovery mode: ' +
-          'will fetch updates and print them, but will not process replies or send new prompts.'
-      );
-    }
     // Read replies
     const offset = await getNextUpdateOffset(conn);
     const { messages } = await fetchUpdates(bot, offset);
     for (const { updateId, message } of messages) {
       await processUpdate(conn, bot, updateId, message);
     }
-    // Send new-author prompts (only when chat id is configured)
-    if (chatId !== null) {
-      await sendDms(conn, bot);
-    }
+    // Send new-author prompts
+    await sendDms(conn, bot);
     dbEnd(conn);
   } catch (error) {
     console.log(error);
