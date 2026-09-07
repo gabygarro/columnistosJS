@@ -19,6 +19,7 @@
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "mariadb": "^3.4.0",
+    "node-telegram-bot-api": "^0.66.0",
     "wafrn-sdk": "^1.0.0"
   },
   "devDependencies": {

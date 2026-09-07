@@ -9,6 +9,7 @@ module.exports = {
     axios: 'module axios',
     cheerio: 'module cheerio',
     'wafrn-sdk': 'module wafrn-sdk',
+    'node-telegram-bot-api': 'module node-telegram-bot-api',
     dotenv: 'module dotenv',
     'dotenv/config': 'module dotenv/config',
   },
