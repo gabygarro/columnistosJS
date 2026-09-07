@@ -1,10 +1,10 @@
 import 'dotenv/config';
-import { login } from 'wafrn-sdk';
-import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import nacionCrawler from '../crawlers/cr/nacion.js';
 import delfinoCrawler from '../crawlers/cr/delfino.js';
 import elFinancieroCrawler from '../crawlers/cr/elfinancierocr.js';
+import nacionCrawler from '../crawlers/cr/nacion.js';
 import semanarioUniversidadCrawler from '../crawlers/cr/semanariouniversidad.js';
+import { connect as dbConnect, end as dbEnd } from '../db/index.js';
+import { getBot } from '../utils/telegram.js';
 import { sendDms, sendPrivateWootToAdmins } from './sendDms.js';
 
 const ALL_COUNTRY_CRAWLERS = {
@@ -50,15 +50,15 @@ export async function handler() {
           [title, url, date_last_seen, siteId, authorId]);
       };
     }));
-    const token = await login();
+    const bot = getBot();
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
         console.error(`Error processing crawler ${index}:`, result.reason);
-        sendPrivateWootToAdmins(token, `Error processing crawler ${index}: ${result.reason}`);
+        sendPrivateWootToAdmins(bot, `Error processing crawler ${index}: ${result.reason}`);
       }
     });
     // Send dms in case there's new authors from this crawl
-    await sendDms(conn, token);
+    await sendDms(conn, bot);
     dbEnd(conn);
   } catch (error) {
     console.log(error);

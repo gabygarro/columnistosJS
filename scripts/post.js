@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import { login, sendWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
-import { NO_WOMAN, ONE_WOMAN, ONE_MAN, SOME_WOMAN, ALL_WOMAN, ONE_WOMAN_COAUTHOR, DAILY_REPORT, NO_WOMAN_SINGULAR } from '../utils/templateTexts.js';
 import { getYesterdaysDate } from '../utils/date.js';
+import { getBot } from '../utils/telegram.js';
+import { ALL_WOMAN, DAILY_REPORT, NO_WOMAN, NO_WOMAN_SINGULAR, ONE_MAN, ONE_WOMAN, ONE_WOMAN_COAUTHOR, SOME_WOMAN } from '../utils/templateTexts.js';
 import { sendDms } from './sendDms.js';
 
 const getRandomInt = (max) =>
@@ -96,8 +97,8 @@ export async function handler() {
       LIMIT 1`
     );
     if (pendingAuthor) {
-      const token = await login();
-      await sendDms(conn, token, true);
+      const bot = getBot();
+      await sendDms(conn, bot, true);
       dbEnd(conn);
       return;
     }
