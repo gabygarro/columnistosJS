@@ -88,8 +88,8 @@ export const sendDms = async (conn, bot, ignoreDmSent = false) => {
     } catch (error) {
       llmError = error;
     }
-    const [{ url }] = await conn.query(`
-      SELECT url FROM article WHERE author_id = ? ORDER BY id DESC LIMIT 1
+    const [{ url, title }] = await conn.query(`
+      SELECT url, title FROM article WHERE author_id = ? ORDER BY id DESC LIMIT 1
     `, [id]);
     const genderResponse = llmResponse?.gender || '?';
     await sendMessage(bot, `Nuevo autor: ${id} ${name}
@@ -98,6 +98,7 @@ La predicción fue guardada: ${chooseLlmResponse === true ? 'Sí' : 'No'}${llmEr
 Error: ${llmError}` : ''}
 Buscar: https://duckduckgo.com/?q=${encodeURI(name)}&iax=images&ia=images
 Artículo: ${url}
+Título: ${title}
 Responde si es hombre: ${id} M
 Si es mujer: ${id} F
 Si es no binarie: ${id} NB
