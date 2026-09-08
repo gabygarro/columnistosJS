@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { login, sendWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 import { getYesterdaysDate } from '../utils/date.js';
-import { getBot } from '../utils/telegram.js';
+import { getBot, sendMessage } from '../utils/telegram.js';
 import { ALL_WOMAN, DAILY_REPORT, NO_WOMAN, NO_WOMAN_SINGULAR, ONE_MAN, ONE_WOMAN, ONE_WOMAN_COAUTHOR, SOME_WOMAN } from '../utils/templateTexts.js';
 import { sendDms } from './sendDms.js';
 
@@ -37,6 +37,22 @@ const getStats = async (conn) =>
       (UTC_DATE() + INTERVAL 6 HOUR)
     GROUP BY s.id
     ORDER BY s.name;
+  `);
+
+const getArticlesBreakdown = async (conn) =>
+  conn.query(`
+    SELECT
+      s.name AS site_name,
+      ar.title AS article_title,
+      au.name AS author_name
+    FROM article ar
+    JOIN site s ON ar.site_id = s.id
+    JOIN author au ON ar.author_id = au.id
+    WHERE ar.date_added >=
+      (UTC_DATE() - INTERVAL 1 DAY + INTERVAL 6 HOUR)
+      AND ar.date_added <
+      (UTC_DATE() + INTERVAL 6 HOUR)
+    ORDER BY s.name, ar.id;
   `);
 
 const MIN_NEW_ARTICLES = 2;
@@ -148,6 +164,32 @@ export async function handler() {
     await sendWoot(dailySummary, { token });
     await Promise.all(textsToWoot.map(text => sendWoot(text, { token })));
     await Promise.all(coAuthorTextsToWoot.map(text => sendWoot(text, { token })));
+
+    try {
+      const articles = await getArticlesBreakdown(conn);
+      const articlesBySite = new Map();
+      for (const { site_name, article_title, author_name } of articles) {
+        if (!articlesBySite.has(site_name)) articlesBySite.set(site_name, []);
+        articlesBySite.get(site_name).push({ article_title, author_name });
+      }
+      const breakdownLines = [];
+      for (const [siteName, siteArticles] of articlesBySite) {
+        breakdownLines.push(`- ${siteName}:`);
+        for (const { article_title, author_name } of siteArticles) {
+          breakdownLines.push(`  - ${author_name}: ${article_title}`);
+        }
+      }
+      const postedTexts = [dailySummary, ...textsToWoot, ...coAuthorTextsToWoot].join('\n\n');
+      const telegramMessage = breakdownLines.length > 0
+        ? `${postedTexts}\n\n${breakdownLines.join('\n')}`
+        : postedTexts;
+      const bot = getBot();
+      await sendMessage(bot, telegramMessage, { disable_web_page_preview: true });
+    } catch (telegramError) {
+      console.log('Failed to send Telegram summary');
+      console.log(telegramError);
+    }
+
     await setRunForToday(conn, date);
     dbEnd(conn);
   } catch (error) {
