@@ -3,7 +3,7 @@ import { login, sendWoot } from 'wafrn-sdk';
 import { connect as dbConnect, end as dbEnd } from '../db/index.js';
 import { getYesterdaysDate } from '../utils/date.js';
 import { getBot, sendMessage } from '../utils/telegram.js';
-import { ALL_WOMAN, DAILY_REPORT, NO_WOMAN, NO_WOMAN_SINGULAR, ONE_MAN, ONE_WOMAN, ONE_WOMAN_COAUTHOR, SOME_WOMAN } from '../utils/templateTexts.js';
+import { ALL_WOMAN, ALL_WOMAN_COAUTHOR, ALL_WOMAN_SINGULAR, DAILY_REPORT, DAILY_REPORT_SINGULAR, NO_WOMAN, NO_WOMAN_SINGULAR, ONE_MAN, ONE_WOMAN, ONE_WOMAN_COAUTHOR, ONE_WOMAN_COAUTHOR_SINGULAR, SOME_WOMAN, SOME_WOMAN_COAUTHOR } from '../utils/templateTexts.js';
 import { sendDms } from './sendDms.js';
 
 const getRandomInt = (max) =>
@@ -24,10 +24,12 @@ const getStats = async (conn) =>
       SUM(au.gender = 'F') AS female_count,
       SUM(au.gender = 'NB') AS non_binary_count,
       SUM(au.gender = 'CF') AS coauthor_female_count,
-      COUNT(DISTINCT CASE
+      COUNT(DISTINCT CASE WHEN au.gender = 'M' THEN au.id END) AS male_author_count,
+      COUNT(DISTINCT CASE WHEN au.gender = 'F' THEN au.id END) AS female_author_count,
+      COUNT(CASE
         WHEN au.gender IS NOT NULL AND au.gender != 'X'
-        THEN au.id
-      END) AS total_authors
+        THEN ar.id
+      END) AS total_articles
     FROM article ar
     JOIN site s ON ar.site_id = s.id
     JOIN author au ON ar.author_id = au.id
@@ -55,38 +57,46 @@ const getArticlesBreakdown = async (conn) =>
     ORDER BY s.name, ar.id;
   `);
 
-const MIN_NEW_ARTICLES = 2;
-const MIN_PERCENT_SOME = 45;
+const MIN_PERCENT_SOME = 30;
 
-const selectText = (female_count, total_authors, percentOfWomen) => {
+export const selectText = (femaleCount, totalArticles, maleCount) => {
+  if (totalArticles === 0) return "";
   const randomIndex = getRandomInt(2);
-  if (percentOfWomen === 0) {
-    if (total_authors === 1 && randomIndex === 1) {
-      return NO_WOMAN_SINGULAR;
-    }
-    return NO_WOMAN[randomIndex];
-  } else if (female_count === 1 && percentOfWomen < MIN_PERCENT_SOME) {
+  if (femaleCount === 0) {
+    if (maleCount !== totalArticles) return NO_WOMAN[0];
+    return totalArticles === 1 ? NO_WOMAN_SINGULAR : NO_WOMAN[randomIndex];
+  } else if (femaleCount === totalArticles) {
+    return totalArticles === 1 ? ALL_WOMAN_SINGULAR : ALL_WOMAN[randomIndex];
+  } else if (femaleCount === 1) {
     return ONE_WOMAN[randomIndex];
-  } else if (female_count === total_authors - 1 &&
-    (1 / total_authors * 100) < MIN_PERCENT_SOME
+  } else if (maleCount === 1 && femaleCount === totalArticles - 1 &&
+    (1 / totalArticles * 100) < MIN_PERCENT_SOME
   ) {
     return ONE_MAN[randomIndex];
-  } else if (percentOfWomen > MIN_PERCENT_SOME) {
-    return SOME_WOMAN[randomIndex];
-  } else if (female_count === total_authors) {
-    return ALL_WOMAN[randomIndex];
   }
-  return "";
+  return SOME_WOMAN[randomIndex];
 };
 
-const selectCoauthorsText = (coauthor_female_count) => {
+export const selectCoauthorsText = (coauthorFemaleCount, totalArticles) => {
+  if (totalArticles === 0 || coauthorFemaleCount === 0) return "";
+  if (totalArticles === 1) return ONE_WOMAN_COAUTHOR_SINGULAR;
   const randomIndex = getRandomInt(2);
-  if (coauthor_female_count === 1) {
+  if (coauthorFemaleCount === totalArticles) {
+    return ALL_WOMAN_COAUTHOR[randomIndex];
+  } else if (coauthorFemaleCount === 1) {
     return ONE_WOMAN_COAUTHOR[randomIndex];
   }
-  return "";
+  return SOME_WOMAN_COAUTHOR[randomIndex];
 };
 
+export const formatText = (template, date, siteStats) => template
+  .replace('{fecha}', date)
+  .replace('{medio}', siteStats.site_name)
+  .replace('{total}', siteStats.total_articles)
+  .replace('{mujeres}', siteStats.female_count)
+  .replace('{coautoras}', siteStats.coauthor_female_count)
+  .replace('{autoras}', Number(siteStats.female_author_count) === 1 ? 'una mujer' : 'mujeres')
+  .replace('{autores}', Number(siteStats.male_author_count) === 1 ? 'un varón' : 'varones');
 
 export async function handler() {
   let conn;
@@ -119,45 +129,40 @@ export async function handler() {
       return;
     }
     const stats = await getStats(conn);
-    let dailySummary = DAILY_REPORT[getRandomInt(4)].replace('{fecha}', date);
+    const dailyArticleCount = stats.reduce((total, siteStats) => total + Number(siteStats.total_articles), 0);
+    const dailyTemplate = dailyArticleCount === 1
+      ? DAILY_REPORT_SINGULAR
+      : DAILY_REPORT[getRandomInt(DAILY_REPORT.length)];
+    let dailySummary = dailyTemplate.replace('{fecha}', date);
     let textsToWoot = [];
     let coAuthorTextsToWoot = [];
     for (const siteStats of stats) {
-      const totalAuthors = Number(siteStats.total_authors);
+      const totalArticles = Number(siteStats.total_articles);
+      if (totalArticles === 0) continue;
       const siteName = siteStats.site_name;
       const femaleCount = Number(siteStats.female_count);
+      const maleCount = Number(siteStats.male_count);
       const coAuthorFemaleCount = Number(siteStats.coauthor_female_count);
-      const percentOfWomen = femaleCount !== 0 ? Math.round(femaleCount / totalAuthors * 100) : 0;
+      const percentOfWomen = Math.round(femaleCount / totalArticles * 100);
       const percentOfWomenCoauthors =
         coAuthorFemaleCount !== 0
-          ? Math.round(coAuthorFemaleCount / totalAuthors * 100)
+          ? Math.round(coAuthorFemaleCount / totalArticles * 100)
           : 0;
 
-      dailySummary = `${dailySummary}\n\t${siteName}: ${percentOfWomen}% (${femaleCount} de ${totalAuthors})`;
+      dailySummary = `${dailySummary}\n\t${siteName}: ${percentOfWomen}% (${femaleCount} de ${totalArticles})`;
       if (coAuthorFemaleCount > 0) {
-        dailySummary = `${dailySummary}\n\t\tArtículos con al menos una mujer co autora: ${
+        const coauthorLabel = coAuthorFemaleCount === 1 ? 'Columna con' : 'Columnas con';
+        dailySummary = `${dailySummary}\n\t\t${coauthorLabel} al menos una mujer como coautora: ${
           percentOfWomenCoauthors
-        }% (${coAuthorFemaleCount} de ${totalAuthors})`;
+        }% (${coAuthorFemaleCount} de ${totalArticles})`;
       }
-      if (totalAuthors.length < MIN_NEW_ARTICLES) {
-        console.log(`Not enough new articles for ${siteName}`);
-      } else {
-        const templateText = selectText(femaleCount, totalAuthors, percentOfWomen);
-        if (templateText !== "") {
-          textsToWoot.push(templateText
-            .replace('{fecha}', date)
-            .replace('{medio}', siteName)
-            .replace('{total}', totalAuthors)
-            .replace('{mujeres}', femaleCount));
-        }
-        const coAuthorTemplateText = selectCoauthorsText(coAuthorFemaleCount);
-        if (coAuthorTemplateText !== "") {
-          coAuthorTextsToWoot.push(coAuthorTemplateText
-            .replace('{fecha}', date)
-            .replace('{medio}', siteName)
-            .replace('{total}', totalAuthors)
-            .replace('{coautoras}', coAuthorFemaleCount));
-        }
+      const templateText = selectText(femaleCount, totalArticles, maleCount);
+      if (templateText !== "") {
+        textsToWoot.push(formatText(templateText, date, siteStats));
+      }
+      const coAuthorTemplateText = selectCoauthorsText(coAuthorFemaleCount, totalArticles);
+      if (coAuthorTemplateText !== "") {
+        coAuthorTextsToWoot.push(formatText(coAuthorTemplateText, date, siteStats));
       }
     }
     const token = await login();
